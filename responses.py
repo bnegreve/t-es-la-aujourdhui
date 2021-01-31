@@ -6,6 +6,9 @@ class Responses:
 
     responses = {}
 
+    def __init__(self):
+        self.load_responses()
+
     @staticmethod
     def filenametoday():
         todaystr = date.today().isoformat()
@@ -30,6 +33,9 @@ class Responses:
         
     def get_response(self, id):
         return response[id]
+
+    def has_responded(self, id):
+        return id in responses.keys()
 
 def main():
     resp = Responses()

@@ -1,9 +1,12 @@
 import json
 import hashlib
 
-class RegistredUsers:
+class RegisteredUsers:
 
     users = {}
+
+    def __init__(self):
+        self.load_users()
 
     @staticmethod
     def get_id_from_email(email):
@@ -18,20 +21,20 @@ class RegistredUsers:
         except FileNotFoundError:
             print('No user file found, starting a new one')
 
-    def store_registred_users(self):
+    def store_registered_users(self):
         with open('users.txt', 'w+') as user_file:
             json.dump(self.users, user_file, indent=2)
             user_file.write("\n")
 
-    def update_user_email(self, old_email, new_email):
+    def update_user_email(self, old_id, new_email):
         
-        old_id = get_id_from_email(old_email)
+#        old_id = get_id_from_email(old_email)
 
         if not old_id in self.users:
             print("Cannot find user {}".format(old_email))
             raise ValueError
 
-        new_id = get_id_from_email(new_email)
+        new_id = self.get_id_from_email(new_email)
 
         user = self.users[old_id]
         print(user)
@@ -41,7 +44,7 @@ class RegistredUsers:
     
     def update_user(self, email, firstname, lastname):
 
-        id = get_id_from_email(email)
+        id = self.get_id_from_email(email)
 
         print("searching for user ", id, email.encode())
 
@@ -55,26 +58,27 @@ class RegistredUsers:
                            'firstname' : firstname,
                            'lastname' : lastname }
         
-        self.store_registred_users()
+        self.store_registered_users()
 
     def remove_user(self, id, write_file=True):
         del self.users[id]
         if write_file:
-            self.store_registred_users()
+            self.store_registered_users()
 
     def get_user_from_email(self, email):
         id = get_id_from_email(email)
         return self.get_user_from_id(id)
 
     def get_user_from_id(self, id):
-        if not id in self.users.keys():
+        print(id)
+        if not id in self.users:
             return None
         else:
             return self.users[id]
         
 def main():
 
-    ru = RegistredUsers()
+    ru = RegisteredUsers()
     ru.load_users()
     ru.update_user('qsd@qsd', 'jamal', 'atif')
     ru.update_user('flo@qsd', 'florian', 'sikou')
