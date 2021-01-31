@@ -5,6 +5,12 @@ class RegistredUsers:
 
     users = {}
 
+    @staticmethod
+    def get_id_from_email(email):
+        hasher = hashlib.sha1()
+        hasher.update(email.encode())
+        return hasher.hexdigest()
+
     def load_users(self):
         try:
             user_file = open('users.txt')
@@ -19,17 +25,13 @@ class RegistredUsers:
 
     def update_user_email(self, old_email, new_email):
         
-        hasher = hashlib.sha1()
-        hasher.update(old_email.encode())
-        old_id = hasher.hexdigest()
+        old_id = get_id_from_email(old_email)
 
         if not old_id in self.users:
             print("Cannot find user {}".format(old_email))
             raise ValueError
 
-        hasher = hashlib.sha1()
-        hasher.update(new_email.encode())
-        new_id = hasher.hexdigest()
+        new_id = get_id_from_email(new_email)
 
         user = self.users[old_id]
         print(user)
@@ -39,9 +41,7 @@ class RegistredUsers:
     
     def update_user(self, email, firstname, lastname):
 
-        hasher = hashlib.sha1()
-        hasher.update(email.encode())
-        id = hasher.hexdigest()
+        id = get_id_from_email(email)
 
         print("searching for user ", id, email.encode())
 
@@ -63,9 +63,7 @@ class RegistredUsers:
             self.store_registred_users()
 
     def get_user_from_email(self, email):
-        hasher = hashlib.sha1()
-        hasher.update(email.encode())
-        id = hasher.hexdigest()
+        id = get_id_from_email(email)
         return self.get_user_from_id(id)
 
     def get_user_from_id(self, id):
