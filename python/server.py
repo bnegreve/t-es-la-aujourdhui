@@ -24,19 +24,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
             raise ValueError
     
     def respond_raw(self, code, data):
-        data['error'] = code
         datastr = json.dumps(data, ensure_ascii=False)
-        print(datastr)
-        self.send_response(code, data['error'])
+        print("ERROR ", code)
+        self.send_response(code, code)
         self.send_header("Content-type", 'text/json; charset=utf-8')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(datastr.encode('utf-8'))
-#        print("Response ({}): ".format(datastr).encode('utf-8'));
+        print("Response ({}): ".format(datastr).encode('utf-8'));
         return code
 
     def respond_with_error(self, err, msg):
-        data = { 'error' : err, 'error_msg' : msg }
+        data = { 'resp_type' : 'error', 'error' : err, 'error_msg' : msg }
         self.respond_raw(err, data)
         self.log_error('ERROR %s: %s', str(err), msg) 
         return err
@@ -45,21 +44,34 @@ class Handler(http.server.BaseHTTPRequestHandler):
         msg = "Error: cannot parse query: '" + q + "'"
         return self.respond_with_error(422, msg)
 
+    def respond(self, data):
+        d = {'resp_type' : 'success', 'data' : data}
+        self.respond_raw(200, d)
+        self.log_error('SUCCESS %s: %s', str(200), data)
+        return 200
+
+    def respond_with_message(self, msg):
+        d = {'resp_type' : 'message', 'msg' : msg}
+        self.respond_raw(200, d)
+        self.log_error('MESSAGE %s: %s', str(200), msg)
+        return 200
+
+    
     def parse_today_qs(self, qs):
-        if qs != '' : 
-            try:
-                query = parse_qs(qs, strict_parsing = True)
-            except ValueError as e:
-                self.respond_with_parse_error(qs)
-                raise ValueError
-            
-            try: 
-                id = self.extract_value(query, 'id', required = True)
-                resp = self.extract_value(query, 'resp', required = True)
-                resp = self.yes_or_no(resp)
-            except ValueError:
-                self.respond_with_parse_error(qs)
-                raise ValueError
+
+        try:
+            query = parse_qs(qs, strict_parsing = True)
+        except ValueError as e:
+            self.respond_with_parse_error(qs)
+            raise ValueError
+
+        try: 
+            id = self.extract_value(query, 'id', required = True)
+            resp = self.extract_value(query, 'resp', required = True)
+            resp = self.yes_or_no(resp)
+        except ValueError:
+            self.respond_with_parse_error(qs)
+            raise ValueError
             
         # TODO check ID
         
@@ -68,7 +80,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             print("Received response from ", user)
             self.responses.update_response(id, resp)
         else:
-            self.respond_with_error("T'es pas enregistre")
+            self.respond_with_message("T'es pas enregistre")
             raise ValueError
         
         return query
@@ -86,52 +98,49 @@ class Handler(http.server.BaseHTTPRequestHandler):
         id = None
         email = None
         
-        if qs != '' : 
-            try:
-                query = parse_qs(qs, strict_parsing = True)
-            except ValueError as e:
-                self.respond_with_parse_error(qs)
-                raise ValueError
+        try:
+            query = parse_qs(qs, strict_parsing = True)
+        except ValueError as e:
+            self.respond_with_parse_error(qs)
+            raise ValueError
             
-            id = self.extract_value(query, 'id')
-            email = self.extract_value(query, 'email')
-            firstname = self.extract_value(query, 'firstname')
-            lastname = self.extract_value(query, 'lastname')
+        id = self.extract_value(query, 'id')
+        email = self.extract_value(query, 'email')
+        firstname = self.extract_value(query, 'firstname')
+        lastname = self.extract_value(query, 'lastname')
+        
+        if email and firstname and lastname:
+            # TODO test if someone with this email exists 
+            if not id :                
+                self.users.add_user(email, firstname, lastname)
+                self.respond_with_message("Salut {}, t'as bien été ajouté.".format(firstname))
+            else:
+                if self.users.has_registered(id):
+                    self.users.update_user(id, email, firstname, lastname)
+                    self.respond_with_message("Salut {}, tes infos ont bien été mises à jour.".format(firstname))
+                else:
+                    self.respond_with_message("T'es pas dans la base, {}.".format(firstname))
+        else:
+            self.respond_with_parse_error(qs)
 
-            if email and firstname and lastname:
-                print("adding (or updating) ", email, firstname, lastname)
-                self.users.update_user(email, firstname, lastname)
-            if id and email :
-                print("updating email ", email)
-                self.users.update_user_email(id, email)
-
-            print("Register query : ", id, email, firstname, lastname)
-
-            self.users.update_user(email, firstname, lastname)
-            # if (not (email and not id)) and (not (email and id)) : 
-            #     self.respond_with_parse_error(qs)
-            #     raise ValueError
 
     def parse_list_qs(self, qs):
         id = None
 
-        if qs != '' : 
-            try:
-                query = parse_qs(qs, strict_parsing = True)
-            except ValueError as e:
-                self.respond_with_parse_error(qs)
-                raise ValueError
+        try:
+            query = parse_qs(qs, strict_parsing = True)
+        except ValueError as e:
+            self.respond_with_parse_error(qs)
+            raise ValueError
 
-            id = self.extract_value(query, 'id', required=True)
-
-            if self.responses.has_responded(id):
-                self.respond_raw(200, self.responses.get_list())
-            else:
-                self.respond_with_error(200, "you have to respond first")
-                
-            
-
+        id = self.extract_value(query, 'id', required=True)
         
+        if users.has_registered(id):
+            self.respond_with_message("T'es pas enregistré.")
+        elif self.responses.has_responded(id):
+            self.respond_with_message("T'as pas répondu aujourd'hui.")
+        else:
+            self.respond(self.responses.get_list())
 
     def do_GET(self):
         req = urlparse(self.path)
@@ -149,7 +158,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.respond_with_parse_error(req.path)
             raise ValueError
 
-        query = self.respond_with_error(0, "ok")
         return 0
 
         

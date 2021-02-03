@@ -4,14 +4,17 @@ import hashlib
 class RegisteredUsers:
 
     users = {}
-
+    
     def __init__(self):
         self.load_users()
 
     @staticmethod
-    def get_id_from_email(email):
+    def generate_id(email, firstname, lastname):
         hasher = hashlib.sha1()
         hasher.update(email.encode())
+        hasher.update(firstname.encode())
+        hasher.update(lastname.encode())
+        # TODO add random number         
         return hasher.hexdigest()
 
     def load_users(self):
@@ -21,36 +24,27 @@ class RegisteredUsers:
         except FileNotFoundError:
             print('No user file found, starting a new one')
 
+
     def store_registered_users(self):
         with open('users.txt', 'w+') as user_file:
             json.dump(self.users, user_file, indent=2)
             user_file.write("\n")
 
-    def update_user_email(self, old_id, new_email):
-        
-#        old_id = get_id_from_email(old_email)
-
-        if not old_id in self.users:
-            print("Cannot find user {}".format(old_email))
-            raise ValueError
-
-        new_id = self.get_id_from_email(new_email)
-
-        user = self.users[old_id]
-        print(user)
-        user['email'] = new_email
-        self.remove_user(old_id, False)
-        self.update_user(new_email, user['firstname'], user['lastname'])
+    def add_user(self, email, firstname, lastname):
+        id = self.generate_id(email, firstname, lastname)
+        while id in self.users: ## regenerate an idea
+            print("Collision! generating new id", id)
+            id = self.generate_id(email, firstname, lastname)
+        return self.update_user(id, email, firstname, lastname)
     
-    def update_user(self, email, firstname, lastname):
-
-        id = self.get_id_from_email(email)
-
-        print("searching for user ", id, email.encode())
-
-        if not id in self.users.keys():
-            print("Adding new user '{}'\n".format(email))
+    def update_user(self, id, email, firstname, lastname):
+        
+        new_user = False
+        
+        if not id in self.users.keys():            
+            print("Adding new user '{}'\n".format(email))            
             self.users[id] = dict()
+            new_user = True
         else:
             print("User {} already exists, updating\n".format(email))
             
@@ -59,6 +53,8 @@ class RegisteredUsers:
                            'lastname' : lastname }
         
         self.store_registered_users()
+
+        return new_user
 
     def remove_user(self, id, write_file=True):
         del self.users[id]
@@ -75,7 +71,10 @@ class RegisteredUsers:
             return None
         else:
             return self.users[id]
-        
+
+    def has_registered(self, id):
+        return id in self.users
+    
 def main():
 
     ru = RegisteredUsers()
