@@ -112,6 +112,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
             #     self.respond_with_parse_error(qs)
             #     raise ValueError
 
+    def parse_list_qs(self, qs):
+        id = None
+
+        if qs != '' : 
+            try:
+                query = parse_qs(qs, strict_parsing = True)
+            except ValueError as e:
+                self.respond_with_parse_error(qs)
+                raise ValueError
+
+            id = self.extract_value(query, 'id', required=True)
+
+            if self.responses.has_responded(id):
+                self.respond_raw(200, self.responses.get_list())
+            else:
+                self.respond_with_error(200, "you have to respond first")
+                
+            
+
         
 
     def do_GET(self):
@@ -122,6 +141,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         print (req.path)
         if req.path=='/today':
             query = self.parse_today_qs(req.query)
+        elif req.path=='/list':
+            query = self.parse_list_qs(req.query)
         elif req.path == '/register':
             query = self.parse_register_qs(req.query)
         else:
