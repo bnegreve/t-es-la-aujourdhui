@@ -73,7 +73,7 @@ class RegisteredUsers:
             return self.users[id]
 
     def has_registered(self, id):
-        return id in self.users
+        return id in self.users.keys()
     
 def main():
 
