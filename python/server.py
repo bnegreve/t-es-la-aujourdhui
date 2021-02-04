@@ -86,7 +86,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.responses.update_response(id, resp)
             self.respond_with_message("C'est noté.")
         else:
-            self.respond_with_message("T'es pas enregistre")
+            self.respond_with_message("T'es pas inscrit(e), tu peux pas répondre")
             raise ValueError
         
         return query
@@ -119,7 +119,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if remove == "1":
             if id != None:
                 self.users.remove_user(id)
-                self.respond_with_message("Supprimé")
+                self.respond_with_message("Supprimé(e)")
             else:
                 self.respond_with_message("Faut un id, vois les mails que tu as reçu.")
             return
@@ -152,9 +152,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         id = self.extract_value(query, 'id')
             
         if id == None or not self.users.has_registered(id):
-            self.respond_with_message("T'es pas enregistré.")
+            self.respond_with_message("T'es pas inscrit(e), tu peux pas voir.")
         elif not self.responses.has_responded(id):
-            self.respond_with_message("T'as pas répondu aujourd'hui.")
+            self.respond_with_message("T'as pas répondu aujourd'hui, tu peux pas voir.")
         else:
             resp_list = []
             resp = self.responses.get_list()
