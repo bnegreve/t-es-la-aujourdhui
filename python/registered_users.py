@@ -38,7 +38,8 @@ class RegisteredUsers:
         while id in self.users: ## regenerate an idea
             print("Collision! generating new id", id)
             id = self.generate_id(email, firstname, lastname)
-        return self.update_user(id, email, firstname, lastname)
+        self.update_user(id, email, firstname, lastname)
+        return id
     
     def update_user(self, id, email, firstname, lastname):
         

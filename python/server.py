@@ -44,11 +44,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
         msg = "Error: cannot parse query: '" + q + "'"
         return self.respond_with_error(422, msg)
 
-    def respond(self, data):
+    def respond_with_list(self, data):
         d = {'resp_type' : 'success', 'data' : data}
         self.respond_raw(200, d)
         self.log_error('SUCCESS %s: %s', str(200), data)
         return 200
+
+    def respond_with_register_success(self, id, msg):
+        d = {'resp_type' : 'register_success', 'id' : id, 'msg' : msg}
+        self.respond_raw(200, d)
+        self.log_error('SUCCESS %s: %s', str(200), d)
+        return 200
+
 
     def respond_with_message(self, msg):
         d = {'resp_type' : 'message', 'msg' : msg}
@@ -107,12 +114,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
         email = self.extract_value(query, 'email')
         firstname = self.extract_value(query, 'firstname')
         lastname = self.extract_value(query, 'lastname')
-        
+        remove = self.extract_value(query, 'remove')
+
+        if remove == "1":
+            if id != None:
+                self.users.remove_user(id)
+                self.respond_with_message("Supprimé")
+            else:
+                self.respond_with_message("Faut un id, vois les mails que tu as reçu.")
+            return
+
         if email and firstname and lastname:
             # TODO test if someone with this email exists 
             if not id :                
-                self.users.add_user(email, firstname, lastname)
-                self.respond_with_message("Salut {}, t'as bien été ajouté.".format(firstname))
+                id = self.users.add_user(email, firstname, lastname)
+                self.respond_with_register_success(id,
+                                "Salut {}, t'as bien été ajouté.".format(firstname))
             else:
                 if self.users.has_registered(id):
                     self.users.update_user(id, email, firstname, lastname)
@@ -132,14 +149,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.respond_with_parse_error(qs)
             raise ValueError
 
-        id = self.extract_value(query, 'id', required=True)
-        
-        if not self.users.has_registered(id):
+        id = self.extract_value(query, 'id')
+            
+        if id == None or not self.users.has_registered(id):
             self.respond_with_message("T'es pas enregistré.")
         elif not self.responses.has_responded(id):
             self.respond_with_message("T'as pas répondu aujourd'hui.")
         else:
-            self.respond(self.responses.get_list())
+            resp_list = []
+            resp = self.responses.get_list()
+            # todo join
+            for uid in resp.keys():
+                u = self.users.get_user_from_id(uid)
+                if u != None:
+                    resp_list.append({'firstname' : u['firstname'],
+                                      'lastname' : u['lastname'],
+                                      'resp' : resp[uid]})
+            self.respond_with_list(resp_list)
 
     def do_GET(self):
         req = urlparse(self.path)
@@ -147,6 +173,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         query = None
 
         print (req.path)
+        print("LIST Query", req.query)
+        print("LIST Query", req.path)
+
         if req.path=='/today':
             query = self.parse_today_qs(req.query)
         elif req.path=='/list':
