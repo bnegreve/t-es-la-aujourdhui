@@ -16,8 +16,8 @@ class RegisteredUsers:
         hasher.update(email.encode())
         hasher.update(firstname.encode())
         hasher.update(lastname.encode())
-        random_str = ''.join(random.choice(string.ascii_letters) for i in range(16)
-        hasher.update(random_str)
+        random_str = ''.join(random.choice(string.ascii_letters) for i in range(16))
+        hasher.update(random_str.encode())
         return hasher.hexdigest()
 
     def load_users(self):
