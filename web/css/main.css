@@ -1,0 +1,13 @@
+#main-container{
+    width: 80%;
+    margin: auto;
+    padding: 20px 20px 20px 20px;
+    border: 1px solid darkblue;
+    background-color: lightgray;
+}
+
+.message-area{
+    display:none;
+    padding: 20px 20px;
+    border:1px solid darkred; 
+}

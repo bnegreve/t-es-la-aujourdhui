@@ -5,11 +5,14 @@
     <!-- <script type='text/javascript' src="http://code.jquery.com/jquery.min.js"></script> -->
     <script type='text/javascript' src="js/jquery.min.js"></script>
     <script type='text/javascript' src="js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
 
   </head>
   <body>
 
-    <div id="global-message-area"></div>
+    <div id="main-container">
+
+    <div id="global-message-area" class="message-area"></div>
 
 
 
@@ -20,7 +23,7 @@
     </p>
 
     <h1>Les gens qui viennent et qui viennent pas aujourd'hui</h1>
-    <div id="list-message-area"></div>
+    <div id="list-message-area" class="message-area"></div>
     <div id="list"></div>
     <button onclick="update_list(get('id'));">rafraîchir</button>
 
@@ -57,5 +60,6 @@
     le fait pas. Toutes les données d'un utilisateur sont
     définitivement supprimées lorsqu'il ou elle se désinscrit.
 
-
+</div>
+</body>
 </html>
