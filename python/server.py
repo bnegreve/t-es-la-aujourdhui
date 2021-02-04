@@ -73,7 +73,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             raise ValueError
 
         try: 
-            id = self.extract_value(query, 'id', required = True)
+            id = self.extract_value(query, 'id')
             resp = self.extract_value(query, 'resp', required = True)
             resp = self.yes_or_no(resp)
         except ValueError:
@@ -81,7 +81,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             raise ValueError
             
         user = self.users.get_user_from_id(id)
-        if user != None:
+        if id != None and user != None:
             print("Received response from ", user)
             self.responses.update_response(id, resp)
             self.respond_with_message("C'est noté.")
