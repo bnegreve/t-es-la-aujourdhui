@@ -1,4 +1,6 @@
 import json
+import random
+import string
 import hashlib
 
 class RegisteredUsers:
@@ -14,7 +16,8 @@ class RegisteredUsers:
         hasher.update(email.encode())
         hasher.update(firstname.encode())
         hasher.update(lastname.encode())
-        # TODO add random number         
+        random_str = ''.join(random.choice(string.ascii_letters) for i in range(16)
+        hasher.update(random_str)
         return hasher.hexdigest()
 
     def load_users(self):
