@@ -2,20 +2,24 @@ var SERVER='http://localhost:8888'
 
 
 function print_global_message(msg){
+    $("#global-message-area").css("display", "block");
     $("#global-message-area").empty()
     $("#global-message-area").html(msg)
 }
 
 function clear_global_message_area(){
+    $("#global-message-area").css("display", "none");
     $("#global-message-area").empty()
 }
 
 function print_list_message(msg){
+    $("#list-message-area").css("display", "block");
     $("#list-message-area").empty()
     $("#list-message-area").html(msg)
 }
 
 function clear_list_message_area(){
+    $("#list-message-area").css("display", "none");
     $("#list-message-area").empty()
 }
 
@@ -95,15 +99,15 @@ function query(url, qdata, callback){
 
 function update_list(user_id){
 
-    var url = SERVER + '/list'; 
-    var qdata = { 'id': user_id };
+    var url = SERVER; 
+    var qdata = { 'q' : 'list', 'id': user_id };
     query(url, qdata, display_list); 
 
 } 
 
 function respond(user_id, resp){
-    var url = SERVER + '/today';
-    var qdata = { 'id' : user_id, 'resp' : resp };
+    var url = SERVER ;
+    var qdata = { 'q' : 'respond', 'id' : user_id, 'resp' : resp };
     query(url, qdata, function (data) {
 	clear_list_message_area(); 
 	print_global_message(data.msg);
@@ -114,8 +118,9 @@ function respond(user_id, resp){
 function register_user(register, firstname, lastname, email){
 
     if(register){
-	var url = SERVER + '/register';
-	var qdata = { 'firstname' : firstname,
+	var url = SERVER; 
+	var qdata = { 'q' : 'register',
+		      'firstname' : firstname,
 		      'lastname' : lastname,
 		      'email' : email };
 	query(url, qdata, function(data){
@@ -132,9 +137,8 @@ function register_user(register, firstname, lastname, email){
 
 function remove_user(user_id){
 
-    var url = SERVER + '/register';
-    var qdata = { 'remove' : 1,
-		  'id' : user_id}
+    var url = SERVER; 
+    var qdata = { 'q' : 'remove', 'id' : user_id}
     query(url, qdata, function(data){
 	$("#list").empty();
 	print_global_message(data.msg); }); 

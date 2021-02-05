@@ -64,13 +64,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return 200
 
     
-    def parse_today_qs(self, qs):
-
-        try:
-            query = parse_qs(qs, strict_parsing = True)
-        except ValueError as e:
-            self.respond_with_parse_error(qs)
-            raise ValueError
+    def parse_today_qs(self, qs, query):
 
         try: 
             id = self.extract_value(query, 'id')
@@ -100,29 +94,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             raise ValueError
 
-    def parse_register_qs(self, qs):
+    def parse_register_qs(self, qs, query):
         id = None
         email = None
-        
-        try:
-            query = parse_qs(qs, strict_parsing = True)
-        except ValueError as e:
-            self.respond_with_parse_error(qs)
-            raise ValueError
-            
+                    
         id = self.extract_value(query, 'id')
         email = self.extract_value(query, 'email')
         firstname = self.extract_value(query, 'firstname')
         lastname = self.extract_value(query, 'lastname')
         remove = self.extract_value(query, 'remove')
-
-        if remove == "1":
-            if id != None:
-                self.users.remove_user(id)
-                self.respond_with_message("Supprimé(e)")
-            else:
-                self.respond_with_message("Faut un id, vois les mails que tu as reçu.")
-            return
 
         if email and firstname and lastname:
             # TODO test if someone with this email exists 
@@ -140,14 +120,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.respond_with_parse_error(qs)
 
 
-    def parse_list_qs(self, qs):
+    def parse_list_qs(self, qs, query):
         id = None
-
-        try:
-            query = parse_qs(qs, strict_parsing = True)
-        except ValueError as e:
-            self.respond_with_parse_error(qs)
-            raise ValueError
 
         id = self.extract_value(query, 'id')
             
@@ -167,23 +141,41 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                       'resp' : resp[uid]})
             self.respond_with_list(resp_list)
 
+    def parse_remove_qs(self, qs, query):
+        id = self.extract_value(query, 'id')
+
+        if id != None:
+            self.users.remove_user(id)
+            self.respond_with_message("Supprimé(e)")
+        else:
+            self.respond_with_message("Faut un id, vois les mails que tu as reçu.")
+
+
     def do_GET(self):
         req = urlparse(self.path)
 
         query = None
 
-        print (req.path)
-        print("LIST Query", req.query)
-        print("LIST Query", req.path)
+        qs = req.query
 
-        if req.path=='/today':
-            query = self.parse_today_qs(req.query)
-        elif req.path=='/list':
-            query = self.parse_list_qs(req.query)
-        elif req.path == '/register':
-            query = self.parse_register_qs(req.query)
+        try:
+            query = parse_qs(qs, strict_parsing = True)
+        except ValueError as e:
+            self.respond_with_parse_error(qs)
+            raise ValueError
+
+        q = self.extract_value(query, 'q', required=True)
+
+        if q=='respond':
+            self.parse_today_qs(qs, query)
+        elif q=='list':
+            self.parse_list_qs(qs, query)
+        elif q == 'register':
+            self.parse_register_qs(qs, query)
+        elif q == 'remove':
+            self.parse_remove_qs(qs, query)
         else:
-            self.respond_with_parse_error(req.path)
+            self.respond_with_parse_error(qs)
             raise ValueError
 
         return 0
