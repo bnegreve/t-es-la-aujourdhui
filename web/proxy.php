@@ -91,6 +91,8 @@ foreach($headerArray as $header)
     }
     header($header, FALSE);
 }
+//header("Access-Control-Allow-Origin: *");
+
 
 echo $body;
 

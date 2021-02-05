@@ -84,9 +84,14 @@ function display_list(data){
 
 function query(url, qdata, callback){
     console.log(qdata);
+
+    var headers = new Headers();
+    headers.append('crossorigin', 'anonymous');
+
     $.ajax({
 	type: 'GET',
 	url: url,
+	headers: headers,
 	crossDomain: true,
 	data: qdata,
 	cache: false,  
@@ -118,7 +123,7 @@ function respond(user_id, resp){
 function register_user(register, firstname, lastname, email){
 
     if(register){
-	var url = SERVER; 
+	var url = SERVER;
 	var qdata = { 'q' : 'register',
 		      'firstname' : firstname,
 		      'lastname' : lastname,
