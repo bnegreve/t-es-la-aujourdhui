@@ -71,10 +71,9 @@ class RegisteredUsers:
 
     def get_user_from_id(self, id):
         print(id)
-        if not id in self.users:
-            return None
-        else:
+        if id in self.users.keys():
             return self.users[id]
+        return None
 
     def has_registered(self, id):
         return id in self.users.keys()
