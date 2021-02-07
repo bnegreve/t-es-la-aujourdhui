@@ -20,7 +20,7 @@ class Responses:
     @staticmethod
     def filenametoday():
         todaystr = date.today().isoformat()
-        return 'responses-'+todaystr+'.txt'
+        return '/home/lamsade/bnegrevergne/tesla/responses-'+todaystr+'.txt'
 
     def load_responses(self):
         try:

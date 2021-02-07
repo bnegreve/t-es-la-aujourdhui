@@ -3,6 +3,8 @@ import random
 import string
 import hashlib
 
+FILENAME='/home/lamsade/bnegrevergne/tesla/users.txt'
+
 class RegisteredUsers:
 
     users = {}
@@ -22,14 +24,14 @@ class RegisteredUsers:
 
     def load_users(self):
         try:
-            user_file = open('users.txt')
+            user_file = open(FILENAME)
             self.users=json.load(user_file)
         except FileNotFoundError:
             print('No user file found, starting a new one')
 
 
     def store_registered_users(self):
-        with open('users.txt', 'w+') as user_file:
+        with open(FILENAME, 'w+') as user_file:
             json.dump(self.users, user_file, indent=2)
             user_file.write("\n")
 
