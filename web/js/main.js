@@ -1,4 +1,5 @@
-var SERVER='http://localhost:8888' 
+//var SERVER='http://localhost:8888' 
+var SERVER='https://www.lamsade.dauphine.fr/~bnegrevergne/t-es-la-aujourdhui/web/proxy.php'
 
 
 function print_global_message(msg){
@@ -56,6 +57,7 @@ function format_resp(firstname, lastname, resp){
 }
 
 function display_list(data){
+
     if (data.resp_type == 'message'){
 	print_list_message(data.msg)
     }
@@ -83,15 +85,12 @@ function display_list(data){
 
 
 function query(url, qdata, callback){
+    console.log("qdata:");
     console.log(qdata);
-
-    var headers = new Headers();
-    headers.append('crossorigin', 'anonymous');
 
     $.ajax({
 	type: 'GET',
 	url: url,
-	headers: headers,
 	crossDomain: true,
 	data: qdata,
 	cache: false,  
@@ -103,11 +102,9 @@ function query(url, qdata, callback){
 
 
 function update_list(user_id){
-
     var url = SERVER; 
     var qdata = { 'q' : 'list', 'id': user_id };
     query(url, qdata, display_list); 
-
 } 
 
 function respond(user_id, resp){
