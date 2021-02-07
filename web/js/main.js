@@ -165,15 +165,16 @@ function register_user(){
 }
 
 function remove_user(user_id){
+    if(user_id){
 
-    var url = SERVER; 
-    var qdata = { 'q' : 'remove', 'id' : user_id}
-    query(url, qdata, function(data){
-	$("#list").empty();
-	print_global_message(data.msg);
-	user_id = null; // TODO MARCHE PAS 
-    }); 
-
+	var url = SERVER;
+	var qdata = { 'q' : 'remove', 'id' : user_id}
+	query(url, qdata, function(data){
+	    $("#list").empty();
+	    print_global_message(data.msg);
+	    window.user_id = null; // TODO MARCHE PAS 
+	}); 
+    }
 }
 
 function fetch_data(){
