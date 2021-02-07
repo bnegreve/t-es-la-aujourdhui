@@ -56,6 +56,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.log_error('SUCCESS %s: %s', str(200), d)
         return 200
 
+    def respond_with_userinfo(self, id, firstname, lastname, email):
+        d = {'resp_type' : 'userinfo', 'firstname':firstname, 'lastname':lastname, 'email':email}
+        self.respond_raw(200, d)
+        self.log_error('USERINFO %s: %s', str(200), firstname + ' ' + lastname + ' ' + email)
+        return 200            
 
     def respond_with_message(self, msg):
         d = {'resp_type' : 'message', 'msg' : msg}
@@ -94,6 +99,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             raise ValueError
 
+    def parse_userinfo_qs(self, qs, query):
+        id = None
+
+        id = self.extract_value(query, 'id')
+            
+        if id == None or not self.users.has_registered(id):
+            self.respond_with_message('Utilisateur inconnu : '+ id)
+            raise ValueError;
+
+        u = self.users.get_user_from_id(id)
+        print(u)
+        self.respond_with_userinfo(id, u['firstname'], u['lastname'], u['email'])
+
+
     def parse_register_qs(self, qs, query):
         id = None
         email = None
@@ -113,7 +132,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 if self.users.has_registered(id):
                     self.users.update_user(id, email, firstname, lastname)
-                    self.respond_with_message("Salut {}, tes infos ont bien été mises à jour.".format(firstname))
+                    self.respond_with_register_success(id,
+                                                  "Salut {}, tes infos ont bien été mises à jour.".format(firstname))
                 else:
                     self.respond_with_message("T'es pas dans la base, {}.".format(firstname))
         else:
@@ -166,12 +186,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         q = self.extract_value(query, 'q', required=True)
 
-        print("received Q register"+q)
+        print("received Query:",q)
 
-        if q=='respond':
-            self.parse_today_qs(qs, query)
+        if q=='userinfo':
+            self.parse_userinfo_qs(qs, query); 
         elif q=='list':
-            self.parse_list_qs(qs, query)
+            self.parse_list_qs(qs, query)            
+        elif q=='respond':
+            self.parse_today_qs(qs, query)
         elif q == 'register':
             self.parse_register_qs(qs, query)
         elif q == 'remove':
