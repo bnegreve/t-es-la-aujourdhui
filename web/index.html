@@ -2,8 +2,12 @@
   <head>
     <title>T'es là aujourd'hui</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 
-    <!-- <script type='text/javascript' src="http://code.jquery.com/jquery.min.js"></script> -->
+
+    <!-- <\!-- <script type='text/javascript' src="http://code.jquery.com/jquery.min.js"></script> -\-> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
     <script type='text/javascript' src="js/jquery.min.js"></script>
     <script type='text/javascript' src="js/main.js"></script>
     <link rel="stylesheet" href="css/main.css">
@@ -11,22 +15,24 @@
   </head>
   <body onload="fetch_data();" >
 
-    <div id="main-container">
+    <div id="main-container" class='border'>
 
-    <div id="global-message-area" class="message-area"></div>
+    <div id="global-message-area" class="message-area alert alert-warning"></div>
 
 
 
     <h1>Tu fais quoi aujourd'hui?</h1>
     <p>
-    <button onclick="respond(get_user_id(), 'yes');">je viens à Dauphine</button>
-    <button onclick="respond(get_user_id(), 'no');">je viens pas à Dauphine</button>
+      <div class='btn-group'>
+    <button class='btn btn-success' onclick="respond(get_user_id(), 'yes');">je viens à Dauphine</button>
+    <button class='btn btn-warning' onclick="respond(get_user_id(), 'no');">je viens pas à Dauphine</button>
+    </div>
     </p>
 
     <h1>Les gens qui viennent et qui viennent pas aujourd'hui</h1>
     <div id="list-message-area" class="message-area"></div>
     <div id="list"></div>
-    <button onclick="update_list(get_user_id());">rafraîchir</button>
+    <button class='btn btn-info' onclick="clear_message_area(); update_list(get_user_id());">Rafraîchir</button>
 
     <h1>S'inscrire / modifier ses données</h1>
     <p>
@@ -37,22 +43,20 @@
       Nom: <input type='text' id='lastname' />
       Email: <input type='text' id='email' />
 	<p>
-	  <button onclick="register_user(get_user_id())">Allez, go</button>
+	  <button class='btn btn-info' onclick="register_user(get_user_id())">S'inscrire ou mettre à jour</button>
 	</p>
-      </form>
-    </p>
+     </p>
     
     <h1>Se désinscrire</h2>
-    <button onclick="remove_user(get_user_id());">On est déçu...</button>
+    <button class='btn btn-danger' onclick="remove_user(get_user_id());">On est déçu...</button>
 
     <h1>Données personnelles</h1>
 
     J'enregistre le nom, le prénom et l'email des utilisateurs
     inscrits. J'enregistre aussi leur réponse chaque jour.  Je me
     reserve le droit de faire des stats pour identifier ceux ou celles
-    qui racontent n'importe quoi, mais pour l'instant, je ne le fait
-    pas. Toutes les données d'un utilisateur sont définitivement
-    supprimées lorsqu'il ou elle se désinscrit.
+    qui racontent n'importe quoi. Toutes les données d'un utilisateur
+    sont définitivement supprimées lorsqu'il ou elle se désinscrit.
 
 </div>
 </body>
