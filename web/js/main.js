@@ -46,9 +46,26 @@ function get(index){
 
 function get_user_id(){
     if ( ! user_id) {
-	user_id = get('id'); 
+	user_id = get('id');
     }
     return user_id; 
+}
+
+function update_userinfo(user_id){
+
+    if(user_id){
+
+	var qdata = {
+	    'q' : 'userinfo',
+	    'id' : user_id
+	};
+
+	query(SERVER, qdata, function(data){
+	    document.getElementById('firstname').value = data.firstname;
+	    document.getElementById('lastname').value = data.lastname;
+	    document.getElementById('email').value = data.email;
+	});
+    }    
 }
 
 function format_resp(firstname, lastname, resp){
@@ -135,10 +152,15 @@ function register_user(){
 		  'firstname' : firstname,
 		  'lastname' : lastname,
 		  'email' : email };
+    alert(user_id);
+    if (user_id)
+	qdata['id'] = user_id; 
+
     query(url, qdata, function(data){
 	print_global_message(data.msg);	
 	user_id = data.id; 
-	update_list(user_id); 
+	update_userinfo(user_id);
+	update_list(user_id);
     }); 
 }
 
@@ -148,11 +170,13 @@ function remove_user(user_id){
     var qdata = { 'q' : 'remove', 'id' : user_id}
     query(url, qdata, function(data){
 	$("#list").empty();
-	print_global_message(data.msg); }); 
+	print_global_message(data.msg);
+	user_id = null; // TODO MARCHE PAS 
+    }); 
+
 }
 
-
-    // var result_area = document.getElementById('results')
-    // result_area.scrollIntoView();
-
-
+function fetch_data(){
+    update_userinfo(get_user_id());
+    update_list(get_user_id());
+}

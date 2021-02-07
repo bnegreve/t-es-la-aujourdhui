@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/main.css">
 
   </head>
-  <body>
+  <body onload="fetch_data();" >
 
     <div id="main-container">
 
@@ -28,12 +28,12 @@
     <div id="list"></div>
     <button onclick="update_list(get_user_id());">rafraîchir</button>
 
-    <h1>S'inscrire</h1>
+    <h1>S'inscrire / modifier ses données</h1>
     <p>
       Si tu t'inscris tu reçois un mail tous les jours, et tu peux voir si les autres viennent une fois que tu as dit ce que tu faisais.
     </p>
     <p>
-      Prénom: <input type='text' id='firstname' />
+      Prénom: <input type='text' id='firstname'/>
       Nom: <input type='text' id='lastname' />
       Email: <input type='text' id='email' />
 	<p>
@@ -42,10 +42,6 @@
       </form>
     </p>
     
-    <script>
-      update_list(get_user_id());
-    </script>
-
     <h1>Se désinscrire</h2>
     <button onclick="remove_user(get_user_id());">On est déçu...</button>
 
