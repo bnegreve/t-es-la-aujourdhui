@@ -166,6 +166,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         q = self.extract_value(query, 'q', required=True)
 
+        print("received Q register"+q)
+
         if q=='respond':
             self.parse_today_qs(qs, query)
         elif q=='list':
@@ -190,7 +192,7 @@ def main():
     # ru.update_user_email('qsd@qsd', 'jamal@atif')
     
 
-    httpd = http.server.HTTPServer(('localhost', 8888), Handler)
+    httpd = http.server.HTTPServer(('10.1.3.43', 8888), Handler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

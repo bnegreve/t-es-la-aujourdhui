@@ -7,7 +7,7 @@ ini_set('display_errors', '1');
 $logHeaders = FALSE;
 
 /* Site to forward requests to.  */
-$site = '10.1.3.43:4445';
+$site = '10.1.3.43:8888';
 
 /* Domains to use when rewriting some headers. */
 $remoteDomain = 'remotesite.domain.tld';
@@ -64,6 +64,7 @@ $response = curl_exec($ch);
 
 $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 $headers = substr($response, 0, $header_size);
+
 $body = substr($response, $header_size);
 $headerArray = explode(PHP_EOL, $headers);
 
@@ -91,7 +92,7 @@ foreach($headerArray as $header)
     }
     header($header, FALSE);
 }
-//header("Access-Control-Allow-Origin: *");
+
 
 
 echo $body;
