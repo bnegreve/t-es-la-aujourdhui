@@ -77,6 +77,10 @@ class RegisteredUsers:
 
     def has_registered(self, id):
         return id in self.users.keys()
+
+    def all_users(self):
+        for u in self.users.keys():
+            yield (u, self.users[u])
     
 def main():
 
