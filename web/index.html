@@ -19,38 +19,35 @@
 
     <h1>Tu fais quoi aujourd'hui?</h1>
     <p>
-    <button onclick="respond(get('id'), 'yes');">je viens à Dauphine</button>
-    <button onclick="respond(get('id'), 'no');">je viens pas à Dauphine</button>
+    <button onclick="respond(get_user_id(), 'yes');">je viens à Dauphine</button>
+    <button onclick="respond(get_user_id(), 'no');">je viens pas à Dauphine</button>
     </p>
 
     <h1>Les gens qui viennent et qui viennent pas aujourd'hui</h1>
     <div id="list-message-area" class="message-area"></div>
     <div id="list"></div>
-    <button onclick="update_list(get('id'));">rafraîchir</button>
+    <button onclick="update_list(get_user_id());">rafraîchir</button>
 
     <h1>S'inscrire</h1>
     <p>
       Si tu t'inscris tu reçois un mail tous les jours, et tu peux voir si les autres viennent une fois que tu as dit ce que tu faisais.
     </p>
     <p>
-      <form action='index.html' method='get'>
-	<input type='hidden' name='q' value='register'/>
-	Prénom: <input type='text' name='firstname' />
-	Nom: <input type='text' name='lastname' />
-	Email: <input type='text' name='email' />
+      Prénom: <input type='text' id='firstname' />
+      Nom: <input type='text' id='lastname' />
+      Email: <input type='text' id='email' />
 	<p>
-	  <input type='submit' value="Allez, go"/>
+	  <button onclick="register_user(get_user_id())">Allez, go</button>
 	</p>
       </form>
     </p>
     
     <script>
-      register_user(get('register'), get('firstname'), get('lastname'), get('email'));
-      update_list(get('id'));
+      update_list(get_user_id());
     </script>
 
     <h1>Se désinscrire</h2>
-    <button onclick="remove_user(get('id'));">On est déçu...</button>
+    <button onclick="remove_user(get_user_id());">On est déçu...</button>
 
     <h1>Données personnelles</h1>
 

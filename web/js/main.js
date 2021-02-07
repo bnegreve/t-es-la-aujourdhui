@@ -1,6 +1,6 @@
 //var SERVER='http://localhost:8888' 
-var SERVER='https://www.lamsade.dauphine.fr/~bnegrevergne/t-es-la-aujourdhui/web/proxy.php'
-
+var SERVER='https://www.lamsade.dauphine.fr/~bnegrevergne/t-es-la-aujourdhui/web/proxy.php';
+var user_id = get_user_id();
 
 function print_global_message(msg){
     $("#global-message-area").css("display", "block");
@@ -42,6 +42,13 @@ function get(index){
     }
     //get the 'index' query parameter
     return $_GET[index];
+}
+
+function get_user_id(){
+    if ( ! user_id) {
+	user_id = get('id'); 
+    }
+    return user_id; 
 }
 
 function format_resp(firstname, lastname, resp){
@@ -117,25 +124,23 @@ function respond(user_id, resp){
     update_list(user_id);
 }
 
-function register_user(register, firstname, lastname, email){
+function register_user(){
 
-    if(register){
-	var url = SERVER;
-	var qdata = { 'q' : 'register',
-		      'firstname' : firstname,
-		      'lastname' : lastname,
-		      'email' : email };
-	query(url, qdata, function(data){
-	    print_global_message(data.msg);
-	    var url = document.location.href.split('?')[0]; 
-	    window.location.href = url+'?id='+data.id; 
-	}); 
+    var firstname = document.getElementById('firstname').value;
+    var lastname = document.getElementById('lastname').value;
+    var email = document.getElementById('email').value;
 
-	
-    }
-
+    var url = SERVER;
+    var qdata = { 'q' : 'register',
+		  'firstname' : firstname,
+		  'lastname' : lastname,
+		  'email' : email };
+    query(url, qdata, function(data){
+	print_global_message(data.msg);	
+	user_id = data.id; 
+	update_list(user_id); 
+    }); 
 }
-
 
 function remove_user(user_id){
 
