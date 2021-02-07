@@ -168,6 +168,9 @@ function remove_user(user_id){
 }
 
 function fetch_data(){
+    var resp = get('resp')
+    if(resp)
+	respond(get('id'), resp);
     update_userinfo(get_user_id());
     update_list(get_user_id(), 0);
 }
