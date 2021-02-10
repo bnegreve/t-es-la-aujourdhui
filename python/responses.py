@@ -7,9 +7,12 @@ class Responses:
 
     responses = {}
     current_file = None
+    config = None
     
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.load_responses()
+        
 
     def check_new_day(self):
         filename = self.filenametoday()
@@ -18,10 +21,9 @@ class Responses:
             self.responses.clear()
             self.load_responses()
 
-    @staticmethod
-    def filenametoday():
+    def filenametoday(self):
         todaystr = date.today().isoformat()
-        return '/home/lamsade/bnegrevergne/tesla/responses-'+todaystr+'.txt'
+        return self.config.get_response_file_prefix()+todaystr+'.txt'
 
     def load_responses(self):
         try:

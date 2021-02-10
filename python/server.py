@@ -4,12 +4,14 @@ import sys
 from urllib.parse import unquote, quote, urlparse, parse_qs, urlunparse
 import registered_users as ru
 import responses as resp
+import config as conf
 import json    
 
 class Handler(http.server.BaseHTTPRequestHandler):
 
-    users = ru.RegisteredUsers()
-    responses = resp.Responses()
+    config = conf.Config()
+    users = ru.RegisteredUsers(config)
+    responses = resp.Responses(config)
 
     # def __init__(self):
     #     print("Initializing server")

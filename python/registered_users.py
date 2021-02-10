@@ -2,14 +2,15 @@ import json
 import random
 import string
 import hashlib
-
-FILENAME='/home/lamsade/bnegrevergne/tesla/users.txt'
+import config
 
 class RegisteredUsers:
 
     users = {}
-    
-    def __init__(self):
+    config = None
+
+    def __init__(self, config):
+        self.config = config
         self.load_users()
 
     @staticmethod
@@ -24,14 +25,14 @@ class RegisteredUsers:
 
     def load_users(self):
         try:
-            user_file = open(FILENAME)
+            user_file = open(self.config.get_user_file())
             self.users=json.load(user_file)
         except FileNotFoundError:
             print('No user file found, starting a new one')
 
 
     def store_registered_users(self):
-        with open(FILENAME, 'w+') as user_file:
+        with open(self.config.get_user_file(), 'w+') as user_file:
             json.dump(self.users, user_file, indent=2)
             user_file.write("\n")
 
