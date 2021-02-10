@@ -35,14 +35,13 @@ class Responses:
             
 
     def save_responses(self):
-        self.check_new_day()
-
         f = self.filenametoday()
         with open(f, 'w+') as resp:
             json.dump(self.responses, resp, indent=2)
             resp.write("\n")
 
     def update_response(self, id, resp):
+        
         self.responses[id] = resp
         self.save_responses()
         
