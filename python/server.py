@@ -75,6 +75,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             id = self.extract_value(query, 'id')
             resp = self.extract_value(query, 'resp', required = True)
             resp = self.yes_or_no(resp)
+            valid_for = self.extract_value(query, 'valid_for')
         except ValueError:
             self.respond_with_parse_error(qs)
             raise ValueError
@@ -82,7 +83,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         user = self.users.get_user_from_id(id)
         if id != None and user != None:
             print("Received response from ", user)
-            self.responses.update_response(id, resp)
+            self.responses.update_response(id, resp, int(valid_for))
             self.respond_with_message("C'est noté.")
         else:
             self.respond_with_message("T'es pas inscrit(e), tu peux pas répondre")

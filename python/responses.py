@@ -1,6 +1,7 @@
 import json
 import hashlib
-from datetime import date
+import datetime 
+from datetime import date,timedelta,datetime
 
 class Responses:
 
@@ -40,14 +41,19 @@ class Responses:
             json.dump(self.responses, resp, indent=2)
             resp.write("\n")
 
-    def update_response(self, id, resp):
-        
-        self.responses[id] = resp
+    def update_response(self, id, resp, valid_for=1):
+        self.check_new_day()
+        if not id in self.responses:
+            self.responses[id] = dict()
+        self.responses[id]['resp'] = resp
+        self.responses[id]['resp_date'] = datetime.now().isoformat()
+        d = date.today() + timedelta(days=valid_for)
+        self.responses[id]['valid_for'] = d.isoformat()
         self.save_responses()
         
     def get_response(self, id):
         self.check_new_day()        
-        return response[id]
+        return response[id]['resp']
 
     def has_responded(self, id):
         self.check_new_day()
