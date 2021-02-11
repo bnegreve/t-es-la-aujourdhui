@@ -69,7 +69,7 @@ class Responses:
         return response[id]['resp']
 
     def send_email_today(self, id):
-        return id in self.responses.keys()
+        return not id in self.responses.keys()
 
     def has_responded(self, id):
         self.check_new_day()
