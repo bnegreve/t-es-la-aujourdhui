@@ -5,13 +5,17 @@ from urllib.parse import unquote, quote, urlparse, parse_qs, urlunparse
 import registered_users as ru
 import responses as resp
 import config as conf
+from datetime import date,timedelta,datetime
 import json    
+
+# TODO fix this
+conf = conf.Config()
 
 class Handler(http.server.BaseHTTPRequestHandler):
 
-    config = conf.Config()
+    config = conf
     users = ru.RegisteredUsers(config)
-    responses = resp.Responses(config)
+    responses = resp.Responses(config, users)
 
     # def __init__(self):
     #     print("Initializing server")
@@ -77,7 +81,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             id = self.extract_value(query, 'id')
             resp = self.extract_value(query, 'resp', required = True)
             resp = self.yes_or_no(resp)
-            valid_for = self.extract_value(query, 'valid_for')
+            validity = self.extract_value(query, 'validity')
         except ValueError:
             self.respond_with_parse_error(qs)
             raise ValueError
@@ -85,7 +89,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         user = self.users.get_user_from_id(id)
         if id != None and user != None:
             print("Received response from ", user)
-            self.responses.update_response(id, resp, int(valid_for))
+            self.responses.update_response(id, resp)
+            
+            if validity != None: 
+                if validity == 'next_monday':
+                    today = date.today()
+                    delay = timedelta(days=-today.weekday() - 1, weeks=1)
+                    self.users.update_long_response(id, resp, delay)
+                elif validity.isdigit():
+                    self.users.update_long_response_days(id, resp, int(validity))
+                else:
+                    raise ValueError
+            else:
+                self.users.reset_long_response(id)
+
             self.respond_with_message("C'est noté.")
         else:
             self.respond_with_message("T'es pas inscrit(e), tu peux pas répondre")
@@ -207,17 +224,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         return 0
 
+    
         
 def main():
 
-    
-    # ru.update_user('qsd@qsd', 'jamal', 'atif')
-    # ru.update_user('qsd@qsd', 'jamal', 'atif2')
-    # ru.update_user('ben@qsd', 'ben', 'bqsd')
-    # ru.update_user_email('qsd@qsd', 'jamal@atif')
-    
-
-    httpd = http.server.HTTPServer(('10.1.3.43', 8888), Handler)
+    httpd = http.server.HTTPServer((conf.get_server_ip(), conf.get_server_port()), Handler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

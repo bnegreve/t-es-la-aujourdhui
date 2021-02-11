@@ -3,6 +3,7 @@ import random
 import string
 import hashlib
 import config
+from datetime import date,timedelta,datetime
 
 class RegisteredUsers:
 
@@ -11,7 +12,7 @@ class RegisteredUsers:
 
     def __init__(self, config):
         self.config = config
-        self.load_users()
+        self.load_users()    
 
     @staticmethod
     def generate_id(email, firstname, lastname):
@@ -57,12 +58,55 @@ class RegisteredUsers:
             
         self.users[id] = { 'email' : email,
                            'firstname' : firstname,
-                           'lastname' : lastname }
+                           'lastname' : lastname
+                          }
         
         self.store_registered_users()
 
         return new_user
 
+    def update_user_extra(self, id, data):
+        if not id in self.users.keys():
+            raise KeyError
+        
+        if not 'extra' in self.users[id].keys() or self.users[id]['extra'] == None:
+            self.users[id]['extra'] = data
+        else:
+            self.users[id]['extra'].update(data)
+        self.store_registered_users()
+
+    def remove_user_extra_entries(self, id, key_list):
+        for k in key_list:
+            del self.users[id]['extra'][k]
+        self.store_registered_users()
+
+    def get_user_extra(self, id):
+        return self.users[id]['extra']
+
+    def update_long_response(self, id, resp, delta):
+        d = date.today() + delta
+        self.update_user_extra(id, {'long_response': resp,
+                                    'response_valid_until': d.isoformat()})        
+
+    def update_long_response_days(self, id, resp, valid_for):
+        self.update_long_response(id, resp, timedelta(days=valid_for))
+
+    def reset_long_response(self, id):
+        if 'extra' in self.users[id] and 'long_response' in self.users[id]['extra']:
+            self.remove_user_extra_entries(id, ['long_response', 'response_valid_until'])
+
+    def get_long_response(self, id):
+        try:
+            (r,d) = (self.users[id]['extra']['long_response'],
+                     self.users[id]['extra']['response_valid_until'])
+            print(date.today().isoformat(), date.fromisoformat(d).isoformat(), r)
+            if date.today() <= date.fromisoformat(d):
+                return r
+            else:
+                return None
+        except KeyError:
+            return None
+    
     def remove_user(self, id, write_file=True):
         del self.users[id]
         if write_file:
@@ -89,11 +133,6 @@ def main():
 
     ru = RegisteredUsers()
     ru.load_users()
-    ru.update_user('qsd@qsd', 'jamal', 'atif')
-    ru.update_user('flo@qsd', 'florian', 'sikou')
-    ru.update_user('qsd@qsd', 'jamal', 'atif2')
-    ru.update_user('ben@qsd', 'ben', 'bqsd')
-    ru.update_user_email('qsd@qsd', 'jamal@atif')
-    print(ru.get_user_from_email('jamal@atif'))
+    
 if __name__ == '__main__':
     main()

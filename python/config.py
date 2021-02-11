@@ -5,7 +5,9 @@ class Config:
 
     data = {
         'response_file_prefix' : 'responses-',
-        'user_file': 'users'
+        'user_file': 'users',
+        'server_ip': 'localhost',
+        'server_port' : 8888
     }
 
     def __init__(self):
@@ -19,6 +21,13 @@ class Config:
 
     def get_user_file(self):
         return self.data['user_file']
+
+    def get_server_ip(self):
+        return self.data['server_ip']
+
+    def get_server_port(self):
+        return self.data['server_port']
+
 
     def load_config(self, filename='config'):
         try:

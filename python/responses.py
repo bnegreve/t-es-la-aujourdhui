@@ -1,3 +1,4 @@
+import registered_users
 import json
 import hashlib
 import datetime 
@@ -8,9 +9,12 @@ class Responses:
     responses = {}
     current_file = None
     config = None
+    users = None
     
-    def __init__(self, config):
+    def __init__(self, config, users):
         self.config = config
+        self.users = users
+        self.load_long_responses()
         self.load_responses()
         
 
@@ -19,11 +23,19 @@ class Responses:
         if filename != self.current_file:
             print("new day! switching to file", filename)
             self.responses.clear()
+            self.load_long_responses()
             self.load_responses()
 
     def filenametoday(self):
         todaystr = date.today().isoformat()
         return self.config.get_response_file_prefix()+todaystr+'.txt'
+
+    def load_long_responses(self):
+        for (id,u) in self.users.all_users():
+            r = self.users.get_long_response(id)
+            if r != None :
+                print("Got long response from ",u['firstname'], u['lastname'], r)
+                self.update_response(id, r, False)
 
     def load_responses(self):
         try:
@@ -43,19 +55,21 @@ class Responses:
             json.dump(self.responses, resp, indent=2)
             resp.write("\n")
 
-    def update_response(self, id, resp, valid_for=1):
-        self.check_new_day()
+    def update_response(self, id, resp, check_new_day=True):
+        if check_new_day:
+            self.check_new_day()
         if not id in self.responses:
             self.responses[id] = dict()
         self.responses[id]['resp'] = resp
         self.responses[id]['resp_date'] = datetime.now().isoformat()
-        d = date.today() + timedelta(days=valid_for)
-        self.responses[id]['valid_for'] = d.isoformat()
         self.save_responses()
         
     def get_response(self, id):
         self.check_new_day()        
         return response[id]['resp']
+
+    def send_email_today(self, id):
+        return id in self.responses.keys()
 
     def has_responded(self, id):
         self.check_new_day()
