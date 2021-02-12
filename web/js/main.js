@@ -81,7 +81,7 @@ function display_list(data){
 	    var user = data.data[resp]; 
 	    str += format_resp(user.firstname,
 			       user.lastname,
-			       user.resp);	    
+			       user.resp.resp);	    
 
 	}
 	str += '</table>';
