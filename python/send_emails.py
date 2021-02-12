@@ -19,16 +19,20 @@ def create_email(user_id, email, firstname, lastname):
     msg['From'] = "tesla"
     msg['To'] = email
 
-    urlyes = url+'?id='+str(user_id)+'&q=respond&resp=yes'
-    urlno = url+'?id='+str(user_id)+'&q=respond&resp=no'
+    urlid = url+'?id='+str(user_id)
+    urlyes = urlid+'&q=respond&resp=yes'
+    urlno = urlid+'&q=respond&resp=no'
 
     text = "Salut!\nT'es là aujourd'hui?"
     text += "\n"
     text += "Oui: "+urlyes+"\n"
     text += "Non: "+urlno+"\n"
     text += "\n"
-    text += "Oui pour toute cette semaine: "+urlyes+"?validity=next_moday\n"
-    text += "Non pour toute cette semaine: "+urlno+"?validity=next_moday\n"
+    text += "Oui jusqu'à la fin de la semaine: "+urlyes+"&validity=next_moday\n"
+    text += "Non jusqu'à la fin de la semaine: "+urlno+"&validity=next_moday\n"
+    text += "\n"
+    text += "Voir ce que font les autres: "+urlid
+    text += "Se désinscrire: "+urlid+'&q=remove'
     text += "\n"
 
     html = "<body>"
@@ -37,12 +41,15 @@ def create_email(user_id, email, firstname, lastname):
     html += "<a href='"+urlyes+"'>Oui</a><br/>"
     html += "<a href='"+urlno+"'>Non</a>"
     html += "<p>"
-    html += "<a href='"+urlyes+"?validity=next_moday'>Oui pour toute la semaine</a>\n"
+    html += "<a href='"+urlyes+"&validity=next_moday'>Oui jusqu'à la fin de la semaine</a>\n"
     html += "<br/>"
-    html += "<a href='"+urlno+"?validity=next_moday'>Non pour toute la semaine</a>\n"
+    html += "<a href='"+urlno+"&validity=next_moday'>Non jusqu'à la fin de la semaine</a>\n"
     html += "</p>"
     html += "<p>"
-    html += "<a href='"+url+"'>Voir ce que font les autres</a>"    
+    html += "<a href='"+urlid+"'>Voir ce que font les autres</a>"    
+    html += "</p>"
+    html += "<p>"
+    html += "<a href='"+urlid+"&q=remove'>Se désinscrire</a>"    
     html += "</p>"
     html += "</body>"
 
