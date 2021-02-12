@@ -168,9 +168,19 @@ function remove_user(user_id){
 }
 
 function fetch_data(){
-    var resp = get('resp')
-    if(resp)
-	respond(get('id'), resp);
+    // forward queries
+    alert(SERVER+location.search);
+    $.ajax({
+	type: 'GET',
+	url: SERVER+location.search,
+	crossDomain: true,
+	data: qdata,
+	cache: false,  
+    	success: function( data ) {
+	    callback(data); 
+	}
+    });
+
     update_userinfo(get_user_id());
     update_list(get_user_id(), 0);
 }
