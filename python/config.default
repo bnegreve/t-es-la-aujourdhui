@@ -1,0 +1,12 @@
+{
+  "user_file": "users.txt",
+  "response_file_prefix" : "responses-",
+  "server_ip": "localhost",
+  "server_port" : 8888,
+  "smtp_server" : "",
+  "smtp_port" : 465,
+  "smtp_user": "",
+  "smtp_password" : "",
+  "sender_email" : "tesla" ,
+  "index_url" : ""
+}

@@ -3,12 +3,7 @@ import json
 
 class Config:
 
-    data = {
-        'response_file_prefix' : 'responses-',
-        'user_file': 'users',
-        'server_ip': 'localhost',
-        'server_port' : 8888
-    }
+    data = {}
 
     def __init__(self):
         self.load_config()
@@ -28,13 +23,13 @@ class Config:
     def get_server_port(self):
         return self.data['server_port']
 
-
     def load_config(self, filename='config'):
         try:
             config = open(filename)
-            self.data.update(json.load(config))
         except FileNotFoundError:
-            print("No config file found at", filename, "using defaults.")            
+            print("No config file found at", filename, "using defaults.")
+            config = open('config.default')
+        self.data.update(json.load(config))
         print("config")
         print(self.data)
 
