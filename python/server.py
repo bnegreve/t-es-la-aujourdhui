@@ -147,7 +147,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not id :                
                 id = self.users.add_user(email, firstname, lastname)
                 self.respond_with_register_success(id,
-                                "Salut {}, t'as bien été ajouté.".format(firstname))
+                                "Salut {}, t'as bien été ajouté(e).".format(firstname))
             else:
                 if self.users.has_registered(id):
                     self.users.update_user(id, email, firstname, lastname)
