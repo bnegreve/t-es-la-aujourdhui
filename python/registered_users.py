@@ -112,8 +112,15 @@ class RegisteredUsers:
         if write_file:
             self.store_registered_users()
 
+    def get_id_from_email(self, email):
+        # TODO outch..
+        for id,u in self.users.items():
+            if u['email'] == email:
+                return id
+        return KeyError
+            
     def get_user_from_email(self, email):
-        id = get_id_from_email(email)
+        id = self.get_id_from_email(email)
         return self.get_user_from_id(id)
 
     def get_user_from_id(self, id):

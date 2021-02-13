@@ -4,6 +4,7 @@ import sys
 from urllib.parse import unquote, quote, urlparse, parse_qs, urlunparse
 import registered_users as ru
 import responses as resp
+import send_emails as se
 import config as conf
 from datetime import date,timedelta,datetime
 import json    
@@ -159,6 +160,71 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.respond_with_parse_error('register', qs)
 
 
+    def respond_with_register_success(self, id, msg):
+        self.respond_with_data('register', { 'id' : id, 'msg_string' : msg })
+    
+    def process_query_response(self, qs, query):
+
+        try: 
+            id = self.extract_value(query, 'id')
+            resp = self.extract_value(query, 'resp', required = True)
+            resp = self.yes_or_no(resp)
+            validity = self.extract_value(query, 'validity')
+        except ValueError:
+            self.respond_with_parse_error('response', qs)
+            raise ValueError
+            
+        user = self.users.get_user_from_id(id)
+        if id != None and user != None:
+            print("Received response from ", user)
+            self.responses.update_response(id, resp)
+            
+            if validity != None: 
+                if validity == 'next_monday':
+                    today = date.today()
+                    delay = timedelta(days=-today.weekday() - 1, weeks=1)
+                    self.users.update_long_response(id, resp, delay)
+                elif validity.isdigit():
+                    self.users.update_long_response_days(id, resp, int(validity))
+                else:
+                    raise ValueError
+            else:
+                self.users.reset_long_response(id)
+
+            self.respond_with_data("response", { 'msg_string' : "C'est noté." })
+        else:
+            self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)
+        
+        return query
+
+    def process_query_userinfo(self, qs, query):
+        id = None
+
+        id = self.extract_value(query, 'id')
+            
+        if id == None or not self.users.has_registered(id):
+            self.respond_with_message('userinfo', 'Utilisateur inconnu : '+ id, 0)
+            raise ValueError;
+
+        u = self.users.get_user_from_id(id)
+        self.respond_with_userinfo(id, u['firstname'], u['lastname'], u['email'])
+
+    def process_query_sendemail(self, qs, query):
+        email = self.extract_value(query, 'email')
+        
+        id = None
+        try :
+            id = self.users.get_id_from_email(email)
+        except KeyError:
+            self.respond_with_message('sendemail', "Email inconnu.")
+            return
+
+        user = self.users.get_user_from_id(id)
+        se.send_mail(user['email'],
+                     se.create_email(id, user['email'], user['firstname'], user['lastname'] ))
+        self.respond_with_message('sendemail', "Email envoyé.") 
+
+
     def process_query_list(self, qs, query):
         id = None
 
@@ -217,6 +283,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.process_query_response(qs, query)
         elif q == 'register':
             self.process_query_register(qs, query)
+        elif q == 'sendemail':
+            self.process_query_sendemail(qs, query)
         elif q == 'remove':
             self.process_query_remove(qs, query)
         else:

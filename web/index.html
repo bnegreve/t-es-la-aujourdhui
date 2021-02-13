@@ -23,7 +23,7 @@
     <div id="global-message-area" class="message-area alert alert-warning"></div>
 
 
-    <h2>S'inscrire ou modifier ses données</h2>
+    <h2>S'inscrire ou modifier ses données perso</h2>
     <p>
       Si tu t'inscris tu reçois un mail tous les jours, et tu peux voir si les autres viennent une fois que tu as dit ce que tu faisais.
     </p>
@@ -31,11 +31,18 @@
       Prénom: <input type='text' id='firstname'/>
       Nom: <input type='text' id='lastname' />
       Email: <input type='text' id='email' />
-	<p>
-	  <button class='btn btn-info' onclick="register_user(get_user_id())">S'inscrire ou mettre à jour</button>
-	</p>
-     </p>
-
+      <br/>
+      <button class='btn btn-info' onclick="register_user(get_user_id())">S'inscrire ou mettre à jour ses info perso</button>
+	        
+    </p>
+      <p>
+	Tu crois bien que t'as un compte mais tu sais plus trop comment faire...<br/>
+      </p>
+      <p>
+	Email: <input type='text' id='email2' />
+	<br/>
+	<button class='btn btn-info' onclick="send_email();">Recevoir un accès par mail</button>
+      </p>
     <h2>Tu fais quoi aujourd'hui?</h2>
     <p>
       <div class='btn-group'>
@@ -50,15 +57,15 @@
     
     <h2>Se désinscrire</h2>
     <button class='btn btn-danger requires_id' onclick="remove_user(get_user_id());" disabled>On est déçu...</button>
-
+    
     <h2>Données personnelles</h2>
-
+    <p>
     J'enregistre le nom, le prénom et l'email des utilisateurs
     inscrits. J'enregistre aussi leur réponse chaque jour.  Je me
     reserve le droit de faire des stats pour identifier ceux ou celles
     qui racontent n'importe quoi. Toutes les données d'un utilisateur
     sont définitivement supprimées lorsqu'il ou elle se désinscrit.
-
+    </p>
 </div>
 </body>
 </html>

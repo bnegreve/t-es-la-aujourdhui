@@ -12,18 +12,18 @@ responses = resp.Responses(config, users)
 
 
 def create_email(user_id, email, firstname, lastname):
-    url=config.get_config('index_url')
     
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "T'es là?"
     msg['From'] = "tesla"
     msg['To'] = email
 
+    url=config.get_config('index_url')
     urlid = url+'?id='+str(user_id)
     urlyes = urlid+'&q=respond&resp=yes'
     urlno = urlid+'&q=respond&resp=no'
 
-    text = "Salut!\nT'es là aujourd'hui?"
+    text = "Salut "+firstname+"!\nT'es là aujourd'hui?"
     text += "\n"
     text += "Oui: "+urlyes+"\n"
     text += "Non: "+urlno+"\n"
@@ -31,13 +31,13 @@ def create_email(user_id, email, firstname, lastname):
     text += "Oui jusqu'à la fin de la semaine: "+urlyes+"&validity=next_moday\n"
     text += "Non jusqu'à la fin de la semaine: "+urlno+"&validity=next_moday\n"
     text += "\n"
-    text += "Voir ce que font les autres: "+urlid
+    text += "Accéder au site et voir ce que font les autres: "+urlid
     text += "Se désinscrire: "+urlid+'&q=remove'
     text += "\n"
 
     html = "<body>"
-    html += "Salut!<p>T'es à Dauphine aujourd'hui?</p>"
-    html += "\n<p>"
+    html += "Salut "+firstname+"!<p>T'es à Dauphine aujourd'hui?"
+    html += "\n<br/>"
     html += "<a href='"+urlyes+"'>Oui</a><br/>"
     html += "<a href='"+urlno+"'>Non</a>"
     html += "<p>"
@@ -46,7 +46,7 @@ def create_email(user_id, email, firstname, lastname):
     html += "<a href='"+urlno+"&validity=next_moday'>Non jusqu'à la fin de la semaine</a>\n"
     html += "</p>"
     html += "<p>"
-    html += "<a href='"+urlid+"'>Voir ce que font les autres</a>"    
+    html += "<a href='"+urlid+"'>Accéder au site et voir ce que font les autres</a>"    
     html += "</p>"
     html += "<p>"
     html += "<a href='"+urlid+"&q=remove'>Se désinscrire</a>"    
@@ -75,13 +75,23 @@ def send_mail(email, msg):
         server.login(smtp_user, smtp_password)
         server.sendmail(sender_email, email, msg.as_string())
 
-for (id, user) in users.all_users():
-    print("id = ", id, "user : ", user)
-    if responses.send_email_today(id):
-        print("Sending email to", user)
-        send_mail(user['email'], create_email(id, user['email'], user['firstname'], user['lastname'] ))
-    else:
-        print("Not sending an email to",user,": to early")
+def send_all_emails():
+
+    for (id, user) in users.all_users():
+        print("id = ", id, "user : ", user)
+        if responses.send_email_today(id):
+            print("Sending email to", user)
+            send_mail(user['email'], create_email(id, user['email'], user['firstname'], user['lastname'] ))
+        else:
+            print("Not sending an email to",user,": to early")
+
+
+def main():
+    send_all_emails()
+
+if __name__ == '__main__':
+    main()
+    
     
 
 

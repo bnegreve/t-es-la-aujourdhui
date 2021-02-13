@@ -150,6 +150,11 @@ function register_user(){
     query(url, qdata); 
 }
 
+function send_email(){
+    var email = document.getElementById('email2').value;
+    query(SERVER, { 'q' : 'sendemail', 'email' : email });     
+}
+
 function process_register_response(data){
     clear_message_area();
     print_message(data.msg_string);	
@@ -185,6 +190,11 @@ function process_response(rdata){
 	    process_userinfo_response(rdata.data);
 	}
 	break;
+    case 'sendemail':
+	if (rdata.subtype === 'message'){
+	    clear_message_area();
+	    print_message(rdata.msg_string);
+	}
     case 'list':
 	if (rdata.subtype === 'message')
 	    print_message(rdata.msg_string)	
