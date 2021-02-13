@@ -51,7 +51,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def respond_with_error(self, query_type, msg):
         self.log_error('ERROR')
         self.respond_with_message(query_type, msg, -1) 
-        return err
 
     def respond_with_parse_error(self, query_type, q):
         msg = "Error: cannot parse query: '" + q + "'"
@@ -185,7 +184,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             id = self.users.get_id_from_email(email)
         except KeyError:
             self.respond_with_message('sendemail', "Email inconnu.")
-            return
+            return 
 
         user = self.users.get_user_from_id(id)
         se.send_mail(user['email'],

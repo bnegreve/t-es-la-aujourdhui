@@ -125,7 +125,7 @@ class RegisteredUsers:
         for id,u in self.users.items():
             if u['email'] == email:
                 return id
-        return KeyError
+        raise KeyError
             
     def get_user_from_email(self, email):
         id = self.get_id_from_email(email)

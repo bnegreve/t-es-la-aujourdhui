@@ -3,15 +3,16 @@ var SERVER='http://localhost:8888'
 var user_id = null;
 
 function print_message(msg){
-    // $("#global-message-area").css("display", "block");
-    $("#global-message-area").css("visibility", "visible");
     $("#global-message-area").append(msg+'<br/>')
+    $("#global-message-area").fadeIn();
+    setTimeout(function(){
+	clearTimeout();
+	$("#global-message-area").fadeOut();
+	}, 5000);
 }
 
 function clear_message_area(){
-   // $("#global-message-area").css("display", "none");
-    $("#global-message-area").css("visibility", "hidden");
-   $("#global-message-area").empty()
+    $("#global-message-area").empty();
 }
 
 function get(index){	    
