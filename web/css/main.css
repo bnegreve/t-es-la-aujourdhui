@@ -4,13 +4,16 @@
     padding: 20px 20px 20px 20px;
 }
 
+#message-container{
+    min-height:6em;
+}
 .message-area{
     /* width:20%; */
     /* float:right; */
     /* display:none; */
     visibility:hidden;
-    min-height:6em;
 }
 
-.requires_id{
+.section{
+    padding-bottom:1em;
 }

@@ -80,10 +80,12 @@ function process_userinfo_response(data){
 function format_resp(firstname, lastname, resp){
     str = '<tr><td>';
     str += firstname + ' ' + lastname + ' '
-    if (resp)
+    if (resp == 1)
 	str += 'viendra.'; 
-    else
+    else if (resp == 0)
 	str += 'ne viendra pas.';
+    else if (resp == -1)
+	str += 'en a marre de se faire harcerler par mon script.'
 
     str += '</td></tr>'
     return str;
@@ -127,9 +129,10 @@ function update_list(user_id){
     query(url, qdata, process_response);
 } 
 
-function respond(user_id, resp){
+function respond(user_id, resp, validity=''){
     var url = SERVER ;
-    var qdata = { 'q' : 'response', 'id' : user_id, 'resp' : resp };
+    var qdata = { 'q' : 'response', 'id' : user_id,
+		  'resp' : resp, 'validity':validity };
     query(url, qdata);
 }
 

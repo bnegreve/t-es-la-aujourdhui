@@ -19,46 +19,59 @@
     <div id="main-container" class='border'>
 
       <h1>T'es là aujourd'hui?</h1>
+      Tu t'inscris, tu reçois un mail le matin et tu peux savoir qui à décidé de venir.
+      <div id="message-container">
+	<div id="global-message-area" class="message-area alert alert-warning"></div>
+      </div>
 
-    <div id="global-message-area" class="message-area alert alert-warning"></div>
 
-
-    <h2>S'inscrire ou modifier ses données perso</h2>
-    <p>
-      Si tu t'inscris tu reçois un mail tous les jours, et tu peux voir si les autres viennent une fois que tu as dit ce que tu faisais.
-    </p>
-    <p>
-      Prénom: <input type='text' id='firstname'/>
-      Nom: <input type='text' id='lastname' />
-      Email: <input type='text' id='email' />
-      <br/>
-      <button class='btn btn-info' onclick="register_user(get_user_id())">S'inscrire ou mettre à jour ses info perso</button>
-	        
-    </p>
+      <h2>S'inscrire ou modifier ses coordonnées</h2>
+      <div class='section'>
       <p>
-	Tu crois bien que t'as un compte mais tu sais plus trop comment faire...<br/>
+	Prénom: <input  type='text' id='firstname'/>
+	Nom: <input  type='text' id='lastname' />
+	e-mail: <input  type='text' id='email' />
+	  <button class='btn btn-info btn-sm' onclick="register_user(get_user_id())">S'inscrire/mettre à jour</button>
+	</p>
       </p>
       <p>
-	Email: <input type='text' id='email2' />
-	<br/>
-	<button class='btn btn-info' onclick="send_email();">Recevoir un accès par mail</button>
+	Je crois que je suis inscrit(e) mais...<br/>
       </p>
+      <p>
+	e-mail: <input type='text' id='email2' />
+	  <button class='btn btn-info btn-sm' onclick="send_email();">Recevoir un accès par mail</button>
+      </p>
+      </div>
     <h2>Tu fais quoi aujourd'hui?</h2>
-    <p>
+    <div class='section'>	
       <div class='btn-group'>
-	<button id='response_yes' class='btn btn-success requires_id' onclick="respond(get_user_id(), 'yes');" disabled>je viens à Dauphine</button>
-	<button id='response_no' class='btn btn-warning requires_id' onclick="respond(get_user_id(), 'no');" disabled>je viens pas à Dauphine</button>
+	<button id='response_yes' class='btn btn-sm btn-success requires_id' onclick="respond(get_user_id(), 'yes');" disabled>je viens à Dauphine</button>
+	<button id='response_yes_this_week' class='btn btn-sm btn-outline-success requires_id' onclick="respond(get_user_id(), 'yes', 'next_monday');" disabled>je viens à Dauphine toute la semaine</button>
       </div>
     </p>
-
+    <p>
+      <div class='btn-group'>
+	<button id='response_no' class='btn btn-sm btn-warning requires_id' onclick="respond(get_user_id(), 'no');" disabled>je viens pas à Dauphine</button>
+	<button id='response_no_this_week' class='btn btn-sm btn-outline-warning requires_id' onclick="respond(get_user_id(), 'no', 'next_monday');" disabled>je ne viendrai pas à Dauphine cette semaine</button>
+      </div>
+    </p>
+</div>
     <h2>Les gens qui viennent et qui viennent pas aujourd'hui</h2>
-    <div id="list"></div>
-    <button class='btn btn-info requires_response' onclick="clear_message_area(); update_list(get_user_id());" disabled>Rafraîchir</button>
-    
-    <h2>Se désinscrire</h2>
-    <button class='btn btn-danger requires_id' onclick="remove_user(get_user_id());" disabled>On est déçu...</button>
-    
+    <div class='section'>
+      <div id="list"></div>
+      <p>
+	<button class='btn btn-sm btn-info requires_response' onclick="clear_message_area(); update_list(get_user_id());" disabled>Rafraîchir</button>
+      </p>
+    </div>
+    <h2>Marre du spam?</h2>
+    <div class='section'>
+      <p>
+	<button id='no_spam' class='btn btn-sm btn-outline-danger requires_id' onclick="respond(get_user_id(), 'no_spam', 10);" disabled>Arrêter de spammer ma boite mail pendant 10 jours</button>
+	<button class='btn btn-sm btn-danger requires_id' onclick="remove_user(get_user_id());" disabled>Se désinscrire</button>
+      </p>
+    </div>
     <h2>Données personnelles</h2>
+    <div class='section'>
     <p>
     J'enregistre le nom, le prénom et l'email des utilisateurs
     inscrits. J'enregistre aussi leur réponse chaque jour.  Je me
@@ -66,6 +79,6 @@
     qui racontent n'importe quoi. Toutes les données d'un utilisateur
     sont définitivement supprimées lorsqu'il ou elle se désinscrit.
     </p>
-</div>
+    </div>
 </body>
 </html>

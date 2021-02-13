@@ -83,13 +83,21 @@ class RegisteredUsers:
     def get_user_extra(self, id):
         return self.users[id]['extra']
 
-    def update_long_response(self, id, resp, delta):
+    def set_no_spam(self, id, delta):
+        d = date.today() + delta
+        self.update_user_extra(id, { 'no_spam_until': d.isoformat()})
+
+    def get_no_spam(self, id):
+        try:
+            d = self.users[id]['extra']['no_spam_until']
+            return date.today() <= date.fromisoformat(d)
+        except KeyError:
+            return False
+
+    def set_long_response(self, id, resp, delta):
         d = date.today() + delta
         self.update_user_extra(id, {'long_response': resp,
                                     'response_valid_until': d.isoformat()})        
-
-    def update_long_response_days(self, id, resp, valid_for):
-        self.update_long_response(id, resp, timedelta(days=valid_for))
 
     def reset_long_response(self, id):
         if 'extra' in self.users[id] and 'long_response' in self.users[id]['extra']:

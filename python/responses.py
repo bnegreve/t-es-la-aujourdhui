@@ -69,6 +69,8 @@ class Responses:
         return response[id]['resp']
 
     def send_email_today(self, id):
+        if self.users.get_no_spam(id):
+            return False
         return not id in self.responses.keys()
 
     def has_responded(self, id):

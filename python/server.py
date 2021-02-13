@@ -22,16 +22,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
     #     print("Initializing server")
 
     @staticmethod
-    def yes_or_no(s):
-        if s == 'yes':
-            return 1
-        elif s == 'no':
-            return 0
-        else:
-            raise ValueError
-
-
-    @staticmethod
     def extract_value(query, name, required=False):
         if name in query:
             return query[name][0]
@@ -85,12 +75,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def respond_with_register_success(self, id, msg):
         self.respond_with_data('register', { 'id' : id, 'msg_string' : msg })
     
+
+    def get_delay_from_validity(self, validity):
+        if validity != None: 
+            if validity == 'next_monday':
+                today = date.today()
+                delay = timedelta(days=-today.weekday() - 1, weeks=1)
+                return delay
+            elif validity.isdigit():
+                delay = timedelta(days=int(validity))
+                return delay            
+        raise ValueError
+
     def process_query_response(self, qs, query):
 
         try: 
             id = self.extract_value(query, 'id')
             resp = self.extract_value(query, 'resp', required = True)
-            resp = self.yes_or_no(resp)
             validity = self.extract_value(query, 'validity')
         except ValueError:
             self.respond_with_parse_error('response', qs)
@@ -98,26 +99,27 @@ class Handler(http.server.BaseHTTPRequestHandler):
             
         user = self.users.get_user_from_id(id)
         if id != None and user != None:
-            print("Received response from ", user)
-            self.responses.update_response(id, resp)
-            
-            if validity != None: 
-                if validity == 'next_monday':
-                    today = date.today()
-                    delay = timedelta(days=-today.weekday() - 1, weeks=1)
-                    self.users.update_long_response(id, resp, delay)
-                elif validity.isdigit():
-                    self.users.update_long_response_days(id, resp, int(validity))
+            try: 
+                if resp == 'no_spam': 
+                    if validity != None:
+                        self.users.set_no_spam(id, self.get_delay_from_validity(validity))
+                    else:
+                        raise ValueError
+
+                elif resp == 'yes' or resp == 'no':
+                    if validity == None:
+                        self.responses.update_response(id, resp=='yes')
+                    else:
+                        self.responses.update_response(id, resp=='yes')
+                        self.users.set_long_response(id, resp=='yes',
+                                    self.get_delay_from_validity(validity))
                 else:
                     raise ValueError
-            else:
-                self.users.reset_long_response(id)
-
+            except ValueError:
+                self.respond_with_parse_error('response', qs)
             self.respond_with_data("response", { 'msg_string' : "C'est noté." })
         else:
             self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)
-        
-        return query
 
     def process_query_userinfo(self, qs, query):
         id = None
@@ -163,40 +165,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def respond_with_register_success(self, id, msg):
         self.respond_with_data('register', { 'id' : id, 'msg_string' : msg })
     
-    def process_query_response(self, qs, query):
-
-        try: 
-            id = self.extract_value(query, 'id')
-            resp = self.extract_value(query, 'resp', required = True)
-            resp = self.yes_or_no(resp)
-            validity = self.extract_value(query, 'validity')
-        except ValueError:
-            self.respond_with_parse_error('response', qs)
-            raise ValueError
-            
-        user = self.users.get_user_from_id(id)
-        if id != None and user != None:
-            print("Received response from ", user)
-            self.responses.update_response(id, resp)
-            
-            if validity != None: 
-                if validity == 'next_monday':
-                    today = date.today()
-                    delay = timedelta(days=-today.weekday() - 1, weeks=1)
-                    self.users.update_long_response(id, resp, delay)
-                elif validity.isdigit():
-                    self.users.update_long_response_days(id, resp, int(validity))
-                else:
-                    raise ValueError
-            else:
-                self.users.reset_long_response(id)
-
-            self.respond_with_data("response", { 'msg_string' : "C'est noté." })
-        else:
-            self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)
-        
-        return query
-
     def process_query_userinfo(self, qs, query):
         id = None
 
