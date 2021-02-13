@@ -35,15 +35,15 @@ class Responses:
             r = self.users.get_long_response(id)
             if r != None :
                 print("Got long response from ",u['firstname'], u['lastname'], r)
-                self.update_response(id, r, False)
+                self.update_response(id, r, False, False)
 
     def load_responses(self):
         try:
             filename = self.filenametoday()
             resp_file = open(filename)
+            print("Loading response file", filename)
             self.responses=json.load(resp_file)
             self.current_file = filename
-            print("Loading response file", filename)
         except FileNotFoundError:
             self.current_file = self.filenametoday()
             print('No resp file found for today, starting a new one')
@@ -55,14 +55,15 @@ class Responses:
             json.dump(self.responses, resp, indent=2)
             resp.write("\n")
 
-    def update_response(self, id, resp, check_new_day=True):
+    def update_response(self, id, resp, check_new_day=True, save=True):
         if check_new_day:
             self.check_new_day()
         if not id in self.responses:
             self.responses[id] = dict()
         self.responses[id]['resp'] = resp
         self.responses[id]['resp_date'] = datetime.now().isoformat()
-        self.save_responses()
+        if save:
+            self.save_responses()
         
     def get_response(self, id):
         self.check_new_day()        
