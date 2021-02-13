@@ -5,7 +5,12 @@
 }
 
 .message-area{
-    width:20%;
-    float:right;
-    display:none;
+    /* width:20%; */
+    /* float:right; */
+    /* display:none; */
+    visibility:hidden;
+    min-height:6em;
+}
+
+.requires_id{
 }

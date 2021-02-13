@@ -15,26 +15,15 @@
   </head>
   <body onload="fetch_data();" >
 
+
     <div id="main-container" class='border'>
+
+      <h1>T'es là aujourd'hui?</h1>
 
     <div id="global-message-area" class="message-area alert alert-warning"></div>
 
 
-
-    <h1>Tu fais quoi aujourd'hui?</h1>
-    <p>
-      <div class='btn-group'>
-    <button class='btn btn-success' onclick="respond(get_user_id(), 'yes');">je viens à Dauphine</button>
-    <button class='btn btn-warning' onclick="respond(get_user_id(), 'no');">je viens pas à Dauphine</button>
-    </div>
-    </p>
-
-    <h1>Les gens qui viennent et qui viennent pas aujourd'hui</h1>
-    <div id="list-message-area" class="message-area"></div>
-    <div id="list"></div>
-    <button class='btn btn-info' onclick="clear_message_area(); update_list(get_user_id());">Rafraîchir</button>
-
-    <h1>S'inscrire / modifier ses données</h1>
+    <h2>S'inscrire ou modifier ses données</h2>
     <p>
       Si tu t'inscris tu reçois un mail tous les jours, et tu peux voir si les autres viennent une fois que tu as dit ce que tu faisais.
     </p>
@@ -46,11 +35,23 @@
 	  <button class='btn btn-info' onclick="register_user(get_user_id())">S'inscrire ou mettre à jour</button>
 	</p>
      </p>
-    
-    <h1>Se désinscrire</h2>
-    <button class='btn btn-danger' onclick="remove_user(get_user_id());">On est déçu...</button>
 
-    <h1>Données personnelles</h1>
+    <h2>Tu fais quoi aujourd'hui?</h2>
+    <p>
+      <div class='btn-group'>
+	<button id='response_yes' class='btn btn-success requires_id' onclick="respond(get_user_id(), 'yes');" disabled>je viens à Dauphine</button>
+	<button id='response_no' class='btn btn-warning requires_id' onclick="respond(get_user_id(), 'no');" disabled>je viens pas à Dauphine</button>
+      </div>
+    </p>
+
+    <h2>Les gens qui viennent et qui viennent pas aujourd'hui</h2>
+    <div id="list"></div>
+    <button class='btn btn-info requires_response' onclick="clear_message_area(); update_list(get_user_id());" disabled>Rafraîchir</button>
+    
+    <h2>Se désinscrire</h2>
+    <button class='btn btn-danger requires_id' onclick="remove_user(get_user_id());" disabled>On est déçu...</button>
+
+    <h2>Données personnelles</h2>
 
     J'enregistre le nom, le prénom et l'email des utilisateurs
     inscrits. J'enregistre aussi leur réponse chaque jour.  Je me

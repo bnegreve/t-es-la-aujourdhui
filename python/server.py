@@ -28,6 +28,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return 0
         else:
             raise ValueError
+
+
+    @staticmethod
+    def extract_value(query, name, required=False):
+        if name in query:
+            return query[name][0]
+        elif not required:
+            return None
+        else:
+            raise ValueError
     
     def respond_raw(self, code, data):
         datastr = json.dumps(data, ensure_ascii=False)
@@ -40,42 +50,41 @@ class Handler(http.server.BaseHTTPRequestHandler):
         print("Response ({}): ".format(datastr).encode('utf-8'));
         return code
 
-    def respond_with_error(self, err, msg):
-        data = { 'resp_type' : 'error', 'error' : err, 'error_msg' : msg }
-        self.respond_raw(err, data)
-        self.log_error('ERROR %s: %s', str(err), msg) 
-        return err
-
-    def respond_with_parse_error(self, q):
-        msg = "Error: cannot parse query: '" + q + "'"
-        return self.respond_with_error(422, msg)
-
-    def respond_with_list(self, data):
-        d = {'resp_type' : 'success', 'data' : data}
-        self.respond_raw(200, d)
-        self.log_error('SUCCESS %s: %s', str(200), data)
-        return 200
-
-    def respond_with_register_success(self, id, msg):
-        d = {'resp_type' : 'register_success', 'id' : id, 'msg' : msg}
-        self.respond_raw(200, d)
-        self.log_error('SUCCESS %s: %s', str(200), d)
-        return 200
-
-    def respond_with_userinfo(self, id, firstname, lastname, email):
-        d = {'resp_type' : 'userinfo', 'firstname':firstname, 'lastname':lastname, 'email':email}
-        self.respond_raw(200, d)
-        self.log_error('USERINFO %s: %s', str(200), firstname + ' ' + lastname + ' ' + email)
-        return 200            
-
-    def respond_with_message(self, msg):
-        d = {'resp_type' : 'message', 'msg' : msg}
+    def respond_with_message(self, query_type, msg, msg_type = 1):
+        d = {'resp_type' : query_type, 'subtype' : 'message',
+             'msg_string' : msg, 'message_type' : msg_type}
         self.respond_raw(200, d)
         self.log_error('MESSAGE %s: %s', str(200), msg)
         return 200
 
+    def respond_with_error(self, query_type, msg):
+        self.log_error('ERROR')
+        self.respond_with_message(query_type, msg, -1) 
+        return err
+
+    def respond_with_parse_error(self, query_type, q):
+        msg = "Error: cannot parse query: '" + q + "'"
+        return self.respond_with_error(query_type, msg)
+
+    def respond_with_data(self, query_type, data):
+        d = {'resp_type' : query_type, 'subtype' : 'data',
+             'data' : data }
+        self.log_error('RESPOND WITH DATA %s', str(data)) 
+        self.respond_raw(200, d)
+
+    def respond_with_userinfo(self, id, firstname, lastname, email):
+        self.respond_with_data('userinfo', {'id': id,
+                                            'firstname':firstname,
+                                            'lastname':lastname,
+                                            'email':email})
+
+    def respond_with_list(self, data):
+        self.respond_with_data('list', data)
+
+    def respond_with_register_success(self, id, msg):
+        self.respond_with_data('register', { 'id' : id, 'msg_string' : msg })
     
-    def parse_today_qs(self, qs, query):
+    def process_query_response(self, qs, query):
 
         try: 
             id = self.extract_value(query, 'id')
@@ -83,7 +92,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             resp = self.yes_or_no(resp)
             validity = self.extract_value(query, 'validity')
         except ValueError:
-            self.respond_with_parse_error(qs)
+            self.respond_with_parse_error('response', qs)
             raise ValueError
             
         user = self.users.get_user_from_id(id)
@@ -103,37 +112,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 self.users.reset_long_response(id)
 
-            self.respond_with_message("C'est noté.")
+            self.respond_with_data("response", { 'msg_string' : "C'est noté." })
         else:
-            self.respond_with_message("T'es pas inscrit(e), tu peux pas répondre")
-            raise ValueError
+            self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)
         
         return query
 
-    @staticmethod
-    def extract_value(query, name, required=False):
-        if name in query:
-            return query[name][0]
-        elif not required:
-            return None
-        else:
-            raise ValueError
-
-    def parse_userinfo_qs(self, qs, query):
+    def process_query_userinfo(self, qs, query):
         id = None
 
         id = self.extract_value(query, 'id')
             
         if id == None or not self.users.has_registered(id):
-            self.respond_with_message('Utilisateur inconnu : '+ id)
+            self.respond_with_message('userinfo', 'Utilisateur inconnu : '+ id, 0)
             raise ValueError;
 
         u = self.users.get_user_from_id(id)
-        print(u)
         self.respond_with_userinfo(id, u['firstname'], u['lastname'], u['email'])
 
-
-    def parse_register_qs(self, qs, query):
+    def process_query_register(self, qs, query):
         id = None
         email = None
                     
@@ -155,20 +152,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self.respond_with_register_success(id,
                                                   "Salut {}, tes infos ont bien été mises à jour.".format(firstname))
                 else:
-                    self.respond_with_message("T'es pas dans la base, {}.".format(firstname))
+                    self.respond_with_message('register',
+                                              "T'es pas dans la base, {}.".format(firstname),
+                                              0)
         else:
-            self.respond_with_parse_error(qs)
+            self.respond_with_parse_error('register', qs)
 
 
-    def parse_list_qs(self, qs, query):
+    def process_query_list(self, qs, query):
         id = None
 
         id = self.extract_value(query, 'id')
             
         if id == None or not self.users.has_registered(id):
-            self.respond_with_message("T'es pas inscrit(e), tu peux pas voir.")
+            self.respond_with_message('list', "T'es pas inscrit(e), tu peux pas voir ce que font les autres.", 0)
         elif not self.responses.has_responded(id):
-            self.respond_with_message("T'as pas répondu aujourd'hui, tu peux pas voir.")
+            self.respond_with_message('list', "T'as pas répondu aujourd'hui, tu peux pas voir ce que font les autres.", 0)
         else:
             resp_list = []
             resp = self.responses.get_list()
@@ -181,14 +180,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                       'resp' : resp[uid]})
             self.respond_with_list(resp_list)
 
-    def parse_remove_qs(self, qs, query):
+    def process_query_remove(self, qs, query):
         id = self.extract_value(query, 'id')
 
         if id != None:
             self.users.remove_user(id)
-            self.respond_with_message("Supprimé(e)")
+            self.respond_with_data('remove', { "msg_string": 'Supprimé(e)' })
         else:
-            self.respond_with_message("Faut un id, vois les mails que tu as reçu.")
+            self.respond_with_message('remove', "Id inconnu", 0)
 
 
     def do_GET(self):
@@ -201,26 +200,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
         try:
             query = parse_qs(qs, strict_parsing = True)
         except ValueError as e:
-            self.respond_with_parse_error(qs)
+            self.respond_with_parse_error('-', qs)
             raise ValueError
 
-        q = self.extract_value(query, 'q', required=True)
+        print("Received Query:",qs)
 
-        print("received Query:",q)
+        q = self.extract_value(query, 'q')
 
-        if q=='userinfo':
-            self.parse_userinfo_qs(qs, query); 
-        elif q=='list':
-            self.parse_list_qs(qs, query)            
-        elif q=='respond':
-            self.parse_today_qs(qs, query)
+        print("query type", q)
+
+        if q == 'userinfo':
+            self.process_query_userinfo(qs, query); 
+        elif q == 'list':
+            self.process_query_list(qs, query)
+        elif q == 'respond' or q == 'response':
+            self.process_query_response(qs, query)
         elif q == 'register':
-            self.parse_register_qs(qs, query)
+            self.process_query_register(qs, query)
         elif q == 'remove':
-            self.parse_remove_qs(qs, query)
+            self.process_query_remove(qs, query)
         else:
-            self.respond_with_parse_error(qs)
-            raise ValueError
+            # default, 
+            self.process_query_list(qs, query)
+            # self.respond_with_parse_error('-', qs)
+            # raise ValueError
 
         return 0
 

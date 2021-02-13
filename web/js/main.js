@@ -1,14 +1,16 @@
-//var SERVER='http://localhost:8888' 
-var SERVER='https://www.lamsade.dauphine.fr/~bnegrevergne/t-es-la-aujourdhui/web/proxy.php';
-var user_id = get_user_id();
+var SERVER='http://localhost:8888' 
+//var SERVER='https://www.lamsade.dauphine.fr/~bnegrevergne/t-es-la-aujourdhui/web/proxy.php';
+var user_id = null;
 
 function print_message(msg){
-    $("#global-message-area").css("display", "block");
+    // $("#global-message-area").css("display", "block");
+    $("#global-message-area").css("visibility", "visible");
     $("#global-message-area").append(msg+'<br/>')
 }
 
 function clear_message_area(){
-   $("#global-message-area").css("display", "none");
+   // $("#global-message-area").css("display", "none");
+    $("#global-message-area").css("visibility", "hidden");
    $("#global-message-area").empty()
 }
 
@@ -32,6 +34,22 @@ function get(index){
     return $_GET[index];
 }
 
+
+function toggle_requires_id(value=true){
+    var items = document.getElementsByClassName('requires_id');
+    for (var i=0; i < items.length; i++) {
+	items[i].disabled = !value;
+    }
+}
+
+function toggle_requires_response(value=true){
+    var items = document.getElementsByClassName('requires_response');
+    for (var i=0; i < items.length; i++) {
+	items[i].disabled = !value;
+    }
+}
+
+
 function get_user_id(){
     if ( ! user_id) {
 	user_id = get('id');
@@ -39,7 +57,7 @@ function get_user_id(){
     return user_id; 
 }
 
-function update_userinfo(user_id){
+function fetch_userinfo(user_id){
 
     if(user_id){
 
@@ -47,13 +65,16 @@ function update_userinfo(user_id){
 	    'q' : 'userinfo',
 	    'id' : user_id
 	};
-
-	query(SERVER, qdata, function(data){
-	    document.getElementById('firstname').value = data.firstname;
-	    document.getElementById('lastname').value = data.lastname;
-	    document.getElementById('email').value = data.email;
-	});
+	
+	query(SERVER, qdata, process_response);
     }    
+}
+
+function process_userinfo_response(data){    
+    document.getElementById('firstname').value = data.firstname;
+    document.getElementById('lastname').value = data.lastname;
+    document.getElementById('email').value = data.email;    
+    toggle_requires_id();
 }
 
 function format_resp(firstname, lastname, resp){
@@ -69,35 +90,24 @@ function format_resp(firstname, lastname, resp){
 }
 
 function display_list(data){
-
-    if (data.resp_type == 'message'){
-	print_message(data.msg); 
-    }
-    else if (data.resp_type == 'success'){
-//	clear_list_message_area();
-	str = '<table class="table">'; 
-	for (resp in data.data){
-//	    console.log(resp);
-	    var user = data.data[resp]; 
-	    str += format_resp(user.firstname,
-			       user.lastname,
-			       user.resp.resp);	    
-
-	}
-	str += '</table>';
-
-	$("#list").html(str); 
-	print_message("Rafraîchi!");
-
+    var str = ''; 
+    for (resp in data){
+	//	    console.log(resp);
+	var user = data[resp]; 
+	str += format_resp(user.firstname,
+			   user.lastname,
+			   user.resp.resp);	    
 
     }
-    else {
-	console.log('error, expected a list answer, got '+ data);
-    }
+    str += '</table>';
+
+    $("#list").html(str); 
+    toggle_requires_id();
+    toggle_requires_response();
 }
 
 
-function query(url, qdata, callback){
+function query(url, qdata){
     console.log("qdata:");
     console.log(qdata);
 
@@ -107,27 +117,20 @@ function query(url, qdata, callback){
 	crossDomain: true,
 	data: qdata,
 	cache: false,  
-    	success: function( data ) {
-	    callback(data); 
-	}
+    	success: process_response
     });
 }
-
 
 function update_list(user_id){
     var url = SERVER; 
     var qdata = { 'q' : 'list', 'id': user_id };
-    query(url, qdata, display_list);
+    query(url, qdata, process_response);
 } 
 
 function respond(user_id, resp){
     var url = SERVER ;
-    var qdata = { 'q' : 'respond', 'id' : user_id, 'resp' : resp };
-    query(url, qdata, function (data) {
-	clear_message_area();
-	print_message(data.msg);
-    });
-    update_list(user_id);
+    var qdata = { 'q' : 'response', 'id' : user_id, 'resp' : resp };
+    query(url, qdata);
 }
 
 function register_user(){
@@ -144,43 +147,97 @@ function register_user(){
     if (user_id)
 	qdata['id'] = user_id; 
 
-    query(url, qdata, function(data){
-	clear_message_area();
-	print_message(data.msg);	
-	user_id = data.id; 
-	update_userinfo(user_id);
-	update_list(user_id);
-    }); 
+    query(url, qdata); 
+}
+
+function process_register_response(data){
+    clear_message_area();
+    print_message(data.msg_string);	
+    user_id = data.id; 
+    fetch_userinfo(user_id);
+    update_list(user_id);
 }
 
 function remove_user(user_id){
     if(user_id){
-
 	var url = SERVER;
 	var qdata = { 'q' : 'remove', 'id' : user_id}
-	query(url, qdata, function(data){
-	    $("#list").empty();
+	query(url, qdata)	
+    }
+}
+
+function process_remove_response(data){
+    window.user_id = null;
+    $("#list").empty();
+    clear_message_area(); 
+    print_message(data.msg_string)	
+    toggle_requires_id(false);
+    toggle_requires_response(false);
+}
+
+function process_response(rdata){
+
+    switch (rdata.resp_type){
+    case 'userinfo':
+	if (rdata.subtype === 'message')
+	    print_message(rdata.msg_string)	
+	else if (rdata.subtype === 'data'){
+	    process_userinfo_response(rdata.data);
+	}
+	break;
+    case 'list':
+	if (rdata.subtype === 'message')
+	    print_message(rdata.msg_string)	
+	else if (rdata.subtype === 'data')
+	    display_list(rdata.data);
+	break;
+    case 'response':
+	if (rdata.subtype === 'message'){
 	    clear_message_area(); 
-	    print_message(data.msg);
-	    window.user_id = null; // TODO MARCHE PAS 
-	}); 
+	    print_message(rdata.msg_string);
+	}
+	else if (rdata.subtype === 'data'){
+	    clear_message_area();
+	    print_message(rdata.data.msg_string);
+	    toggle_requires_response();
+	    update_list(user_id);
+	}
+	break;
+    case 'register':
+	if (rdata.subtype === 'message')
+	    print_message(rdata.msg_string)	
+	else if (rdata.subtype === 'data')
+	    process_register_response(rdata.data)
+	break;
+    case 'remove':
+	if (rdata.subtype === 'message')
+	    print_message(rdata.msg_string)	
+	else if (rdata.subtype === 'data'){
+	    process_remove_response(rdata.data);
+	}
+	
+	break; 
+    }
+}
+
+function forward_queries(){
+    // forward queries
+    if(location.search !== ''){
+	$.ajax({
+	    type: 'GET',
+	    url: SERVER+location.search,
+	    crossDomain: true,
+	    data: "",
+	    cache: false,  
+    	    success: process_response
+	});
     }
 }
 
 function fetch_data(){
-    // forward queries
-    alert(SERVER+location.search);
-    $.ajax({
-	type: 'GET',
-	url: SERVER+location.search,
-	crossDomain: true,
-	data: qdata,
-	cache: false,  
-    	success: function( data ) {
-	    callback(data); 
-	}
-    });
-
-    update_userinfo(get_user_id());
-    update_list(get_user_id(), 0);
+    forward_queries(); 
+    if(get_user_id()){
+	fetch_userinfo(get_user_id());
+    // 	update_list(get_user_id(), 0);
+    }
 }
