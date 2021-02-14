@@ -73,9 +73,15 @@ def send_mail(email, msg):
     smtp_password = config.get_config('smtp_password')
     sender_email = config.get_config('sender_email')
     
-    with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.ehlo()
+        server.starttls()
         server.login(smtp_user, smtp_password)
         server.sendmail(sender_email, email, msg.as_string())
+
+    # with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
+    #     server.login(smtp_user, smtp_password)
+    #     server.sendmail(sender_email, email, msg.as_string())
 
 def send_all_emails():
 
