@@ -50,7 +50,7 @@ def create_email(user_id, email, firstname, lastname):
     html += "<a href='"+urlid+"'>Accéder au site</a>"    
     html += "</p>"
     html += "<p>"
-    html += "<a href='"+urlid+"&q=response&resp=no_spam&validity=10'>Arrêter de spammer ma boite pendant 10 jours</a>"    
+    html += "<a href='"+urlid+"&q=response&resp=no_spam&validity=10'>Arrêter de spammer ma boite pendant 10 jours</a><br/>"    
     html += "<a href='"+urlid+"&q=remove'>Se désinscrire</a>"    
     html += "</p>"
     html += "</body>"
