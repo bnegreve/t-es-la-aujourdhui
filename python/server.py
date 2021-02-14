@@ -82,7 +82,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 delay = timedelta(days=-today.weekday() - 1, weeks=1)
                 return delay
             elif validity.isdigit():
-                delay = timedelta(days=int(validity))
+                d = int(validity)
+                if(d > 10):
+                    self.respond_with_message("response", "Non.", 0)
+                    raise IndexError;
+                delay = timedelta(days=d)
                 return delay            
         raise ValueError
 

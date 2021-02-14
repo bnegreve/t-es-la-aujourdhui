@@ -31,7 +31,8 @@ def create_email(user_id, email, firstname, lastname):
     text += "Oui jusqu'à la fin de la semaine: "+urlyes+"&validity=next_moday\n"
     text += "Non jusqu'à la fin de la semaine: "+urlno+"&validity=next_moday\n"
     text += "\n"
-    text += "Accéder au site et voir ce que font les autres: "+urlid
+    text += "Accéder au site: "+urlid
+    text += "Arrêter de spammer ma boite pendant 10 jours: "+urlid+"&q=response&resp=no_spam&validity=10'"    
     text += "Se désinscrire: "+urlid+'&q=remove'
     text += "\n"
 
@@ -46,9 +47,10 @@ def create_email(user_id, email, firstname, lastname):
     html += "<a href='"+urlno+"&validity=next_moday'>Non jusqu'à la fin de la semaine</a>\n"
     html += "</p>"
     html += "<p>"
-    html += "<a href='"+urlid+"'>Accéder au site et voir ce que font les autres</a>"    
+    html += "<a href='"+urlid+"'>Accéder au site</a>"    
     html += "</p>"
     html += "<p>"
+    html += "<a href='"+urlid+"&q=response&resp=no_spam&validity=10'>Arrêter de spammer ma boite pendant 10 jours</a>"    
     html += "<a href='"+urlid+"&q=remove'>Se désinscrire</a>"    
     html += "</p>"
     html += "</body>"

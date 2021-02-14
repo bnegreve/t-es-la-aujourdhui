@@ -31,28 +31,26 @@
 	Prénom: <input  type='text' id='firstname'/>
 	Nom: <input  type='text' id='lastname' />
 	e-mail: <input  type='text' id='email' />
-	  <button class='btn btn-info btn-sm' onclick="register_user(get_user_id())">S'inscrire/mettre à jour</button>
-	</p>
+	<button class='btn btn-info btn-sm' onclick="action_register_user()">S'inscrire/mettre à jour</button>
       </p>
       <p>
-	Je crois que je suis inscrit(e) mais...<br/>
-      </p>
+	<h5>Recevoir à nouveau un accès par mail</h5>
       <p>
 	e-mail: <input type='text' id='email2' />
-	  <button class='btn btn-info btn-sm' onclick="send_email();">Recevoir un accès par mail</button>
+	<button class='btn btn-info btn-sm' onclick="action_send_email();">Recevoir un accès par mail</button>
       </p>
       </div>
-    <h2>Tu fais quoi aujourd'hui?</h2>
-    <div class='section'>	
+      <h2>Tu fais quoi aujourd'hui?</h2>
+      <div class='section'>	
       <div class='btn-group'>
-	<button id='response_yes' class='btn btn-sm btn-success requires_id' onclick="respond(get_user_id(), 'yes');" disabled>je viens à Dauphine</button>
-	<button id='response_yes_this_week' class='btn btn-sm btn-outline-success requires_id' onclick="respond(get_user_id(), 'yes', 'next_monday');" disabled>je viens à Dauphine toute la semaine</button>
+	<button id='response_yes' class='btn btn-sm btn-success requires_id' onclick="action_user_response('yes');" disabled>je viens à Dauphine</button>
+	<button id='response_yes_this_week' class='btn btn-sm btn-outline-success requires_id' onclick="action_user_response('yes', 'next_monday');" disabled>je viens à Dauphine toute la semaine</button>
       </div>
     </p>
     <p>
       <div class='btn-group'>
-	<button id='response_no' class='btn btn-sm btn-warning requires_id' onclick="respond(get_user_id(), 'no');" disabled>je viens pas à Dauphine</button>
-	<button id='response_no_this_week' class='btn btn-sm btn-outline-warning requires_id' onclick="respond(get_user_id(), 'no', 'next_monday');" disabled>je ne viendrai pas à Dauphine cette semaine</button>
+	<button id='response_no' class='btn btn-sm btn-warning requires_id' onclick="action_user_response('no');" disabled>je viens pas à Dauphine</button>
+	<button id='response_no_this_week' class='btn btn-sm btn-outline-warning requires_id' onclick="action_user_response('no', 'next_monday');" disabled>je ne viendrai pas à Dauphine cette semaine</button>
       </div>
     </p>
 </div>
@@ -60,24 +58,25 @@
     <div class='section'>
       <div id="list"></div>
       <p>
-	<button class='btn btn-sm btn-info requires_response' onclick="clear_message_area(); update_list(get_user_id());" disabled>Rafraîchir</button>
+	<button class='btn btn-sm btn-info requires_response' onclick="clear_message_area(); action_update_list();" disabled>Rafraîchir</button>
       </p>
     </div>
     <h2>Marre du spam?</h2>
     <div class='section'>
       <p>
-	<button id='no_spam' class='btn btn-sm btn-outline-danger requires_id' onclick="respond(get_user_id(), 'no_spam', 10);window.scrollTo(0,0);" disabled>Arrêter de spammer ma boite mail pendant 10 jours</button>
-	<button class='btn btn-sm btn-danger requires_id' onclick="remove_user(get_user_id());window.scrollTo(0,0);" disabled>Se désinscrire</button>
+	<button id='no_spam' class='btn btn-sm btn-outline-danger requires_id' onclick="action_user_response('no_spam', 10);" disabled>Arrêter de spammer ma boite mail pendant 10 jours</button>
+	<button class='btn btn-sm btn-danger requires_id' onclick="action_remove_user();" disabled>Se désinscrire</button>
       </p>
     </div>
     <h2>Données personnelles</h2>
     <div class='section'>
     <p>
-    J'enregistre le nom, le prénom et l'email des utilisateurs
-    inscrits. J'enregistre aussi leur réponse chaque jour.  Je me
-    reserve le droit de faire des stats pour identifier ceux ou celles
-    qui racontent n'importe quoi. Toutes les données d'un utilisateur
-    sont définitivement supprimées lorsqu'il ou elle se désinscrit.
+      Le nom, le prénom et l'e-mail de l'utilisateur ou de
+      l'utilisatrice sont enregistrés lors de son inscription. Les
+      réponses journalières sont également enregistrées et stockées
+      jusqu'à nouvel ordre. Toutes les données sont définitivement
+      supprimées lorsque l'utilisateur ou l'utilisatrice choisit de se
+      désinscrire.
     </p>
     </div>
 </body>

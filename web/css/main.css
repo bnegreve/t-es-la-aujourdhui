@@ -13,6 +13,9 @@
     display:none;
 }
 
+#list{
+    display:none;
+}
 .section{
     padding-bottom:1em;
 }

@@ -8,7 +8,7 @@ function print_message(msg){
     setTimeout(function(){
 	clearTimeout();
 	$("#global-message-area").fadeOut();
-	}, 5000);
+	}, 10000);
 }
 
 function clear_message_area(){
@@ -50,7 +50,6 @@ function toggle_requires_response(value=true){
     }
 }
 
-
 function get_user_id(){
     if ( ! user_id) {
 	user_id = get('id');
@@ -58,25 +57,6 @@ function get_user_id(){
     return user_id; 
 }
 
-function fetch_userinfo(user_id){
-
-    if(user_id){
-
-	var qdata = {
-	    'q' : 'userinfo',
-	    'id' : user_id
-	};
-	
-	query(SERVER, qdata, process_response);
-    }    
-}
-
-function process_userinfo_response(data){    
-    document.getElementById('firstname').value = data.firstname;
-    document.getElementById('lastname').value = data.lastname;
-    document.getElementById('email').value = data.email;    
-    toggle_requires_id();
-}
 
 function format_resp(firstname, lastname, resp){
     str = '<tr><td>';
@@ -93,6 +73,7 @@ function format_resp(firstname, lastname, resp){
 }
 
 function display_list(data){
+
     var str = ''; 
     for (resp in data){
 	//	    console.log(resp);
@@ -124,112 +105,138 @@ function query(url, qdata){
     });
 }
 
-function update_list(user_id){
-    var url = SERVER; 
-    var qdata = { 'q' : 'list', 'id': user_id };
-    query(url, qdata, process_response);
-} 
+// button 
+function action_update_list(){
+    $("#list").fadeOut('fast');
+    update_list();	
+}
 
-function respond(user_id, resp, validity=''){
-    var url = SERVER ;
+function update_list(){
+    var id = get_user_id()    
+    var qdata = { 'q' : 'list', 'id': user_id };    
+    query(SERVER, qdata, process_response);
+}
+
+
+function process_list_response(rdata){    
+    if (rdata.subtype === 'message')
+	print_message(rdata.msg_string)	
+    else if (rdata.subtype === 'data')
+	display_list(rdata.data);
+	$("#list").fadeIn('fast');
+}
+
+
+function action_user_response(resp, validity=''){
+    // make sure query is not sent before the div has faded out
+    $("#list").fadeOut('fast');
+    var id = get_user_id();
     var qdata = { 'q' : 'response', 'id' : user_id,
 		  'resp' : resp, 'validity':validity };
-    query(url, qdata);
+    query(SERVER, qdata);
 }
 
-function register_user(){
-
-    var firstname = document.getElementById('firstname').value;
-    var lastname = document.getElementById('lastname').value;
-    var email = document.getElementById('email').value;
-
-    var url = SERVER;
-    var qdata = { 'q' : 'register',
-		  'firstname' : firstname,
-		  'lastname' : lastname,
-		  'email' : email };
-    if (user_id)
-	qdata['id'] = user_id; 
-
-    query(url, qdata); 
-}
-
-function send_email(){
-    var email = document.getElementById('email2').value;
-    query(SERVER, { 'q' : 'sendemail', 'email' : email });     
-}
-
-function process_register_response(data){
-    clear_message_area();
-    print_message(data.msg_string);	
-    user_id = data.id; 
-    fetch_userinfo(user_id);
-    update_list(user_id);
-}
-
-function remove_user(user_id){
-    if(user_id){
-	var url = SERVER;
-	var qdata = { 'q' : 'remove', 'id' : user_id}
-	query(url, qdata)	
+// Note: name is not a typo
+function process_user_response_response(rdata){
+    if (rdata.subtype === 'message'){
+	clear_message_area(); 
+	print_message(rdata.msg_string);
+    }
+    else if (rdata.subtype === 'data'){
+	clear_message_area();
+	print_message(rdata.data.msg_string);
+	toggle_requires_response();
+	update_list();
     }
 }
 
-function process_remove_response(data){
-    window.user_id = null;
-    $("#list").empty();
-    clear_message_area(); 
-    print_message(data.msg_string)	
-    toggle_requires_id(false);
-    toggle_requires_response(false);
+
+function process_userinfo_response(rdata){    
+
+    if (rdata.subtype === 'message')
+	print_message(rdata.msg_string)	
+    else if (rdata.subtype === 'data'){
+	document.getElementById('firstname').value = rdata.data.firstname;
+	document.getElementById('lastname').value = rdata.data.lastname;
+	document.getElementById('email').value = rdata.data.email;
+	print_message("Bienvenu(e) " + rdata.data.firstname);
+	toggle_requires_id();
+	update_list();
+    }
 }
+
+
+function action_register_user(){
+    var firstname = document.getElementById('firstname').value;
+    var lastname = document.getElementById('lastname').value;
+    var email = document.getElementById('email').value;
+    var id = get_user_id(); 
+    query(SERVER, { 'q': 'register',
+		    'firstname' : firstname,
+		    'lastname' : lastname,
+		    'email' : email,
+		    'id' : id
+		  }); 
+}
+
+function process_register_user_response(rdata){
+    if (rdata.subtype === 'message') // error
+	print_message(rdata.msg_string)	
+    else if (rdata.subtype === 'data'){
+	var query = '?q=userinfo&id='+rdata.data.id;
+	location.search=query;
+    }
+}
+
+
+function action_send_email(){
+    var email = document.getElementById('email2').value;
+    var query = '?q=sendemail&email='+email;
+    location.search=query;
+}
+
+function process_sendemail_response(rdata){
+    if (rdata.subtype === 'message'){
+	clear_message_area();
+	print_message(rdata.msg_string);
+    }
+}
+
+function action_remove_user(){
+    var id = get_user_id();
+    query(SERVER, { 'q' : 'remove', 'id' : id });
+}
+
+function process_remove_user_response(rdata){
+    	if (rdata.subtype === 'message')
+	    print_message(rdata.msg_string)	
+	else if (rdata.subtype === 'data'){
+	    var query = '';
+	    location.search=query;
+	}
+}
+	
 
 function process_response(rdata){
 
     switch (rdata.resp_type){
     case 'userinfo':
-	if (rdata.subtype === 'message')
-	    print_message(rdata.msg_string)	
-	else if (rdata.subtype === 'data'){
-	    process_userinfo_response(rdata.data);
-	}
+	process_userinfo_response(rdata);
 	break;
     case 'sendemail':
-	if (rdata.subtype === 'message'){
-	    clear_message_area();
-	    print_message(rdata.msg_string);
-	}
+	process_sendemail_response(rdata);
+	break;
     case 'list':
-	if (rdata.subtype === 'message')
-	    print_message(rdata.msg_string)	
-	else if (rdata.subtype === 'data')
-	    display_list(rdata.data);
+	process_list_response(rdata);
 	break;
     case 'response':
-	if (rdata.subtype === 'message'){
-	    clear_message_area(); 
-	    print_message(rdata.msg_string);
-	}
-	else if (rdata.subtype === 'data'){
-	    clear_message_area();
-	    print_message(rdata.data.msg_string);
-	    toggle_requires_response();
-	    update_list(user_id);
-	}
+	process_user_response_response(rdata);
 	break;
     case 'register':
-	if (rdata.subtype === 'message')
-	    print_message(rdata.msg_string)	
-	else if (rdata.subtype === 'data')
-	    process_register_response(rdata.data)
-	break;
+	process_register_user_response(rdata);
+	break; 
     case 'remove':
-	if (rdata.subtype === 'message')
-	    print_message(rdata.msg_string)	
-	else if (rdata.subtype === 'data'){
-	    process_remove_response(rdata.data);
-	}
-	
+	process_remove_user_response(rdata);
 	break; 
     }
 }
@@ -250,8 +257,4 @@ function forward_queries(){
 
 function fetch_data(){
     forward_queries(); 
-    if(get_user_id()){
-	fetch_userinfo(get_user_id());
-    // 	update_list(get_user_id(), 0);
-    }
 }
