@@ -117,6 +117,13 @@ function update_list(){
     query(SERVER, qdata, process_response);
 }
 
+function get_userinfo(){
+    var id = get_user_id()    
+    var qdata = { 'q' : 'userinfo', 'id': user_id };    
+    query(SERVER, qdata, process_response);
+}
+
+
 
 function process_list_response(rdata){    
     if (rdata.subtype === 'message')
@@ -147,6 +154,7 @@ function process_user_response_response(rdata){
 	print_message(rdata.data.msg_string);
 	toggle_requires_response();
 	update_list();
+	get_userinfo();
     }
 }
 
@@ -159,7 +167,7 @@ function process_userinfo_response(rdata){
 	document.getElementById('firstname').value = rdata.data.firstname;
 	document.getElementById('lastname').value = rdata.data.lastname;
 	document.getElementById('email').value = rdata.data.email;
-	print_message("Bienvenu(e) " + rdata.data.firstname);
+	//print_message("Bienvenu(e) " + rdata.data.firstname);
 	toggle_requires_id();
 	update_list();
     }
