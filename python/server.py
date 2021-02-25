@@ -120,6 +120,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     raise ValueError
             except ValueError:
                 self.respond_with_parse_error('response', qs)
+                raise ValueError
             self.respond_with_data("response", { 'msg_string' : "C'est noté." })
         else:
             self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)
