@@ -37,6 +37,8 @@ function get(index){
 
 
 function toggle_requires_id(value=true){
+    document.getElementById("btn-register").innerHTML = "Mettre à jour";
+    document.getElementById("btn-logout").style.display = "block";
     var items = document.getElementsByClassName('requires_id');
     for (var i=0; i < items.length; i++) {
 	items[i].disabled = !value;
@@ -196,6 +198,10 @@ function process_register_user_response(rdata){
     }
 }
 
+function logout(){
+    user_id=null;
+    location.search='';
+}
 
 function action_send_email(){
     var email = document.getElementById('email2').value;
