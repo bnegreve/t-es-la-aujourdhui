@@ -77,7 +77,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def get_delay_from_validity(self, validity):
         if validity != None: 
-            if validity == 'next_monday':
+            if validity == 'next_monday' or validity == 'next_moday': 
                 today = date.today()
                 delay = timedelta(days=-today.weekday() - 1, weeks=1)
                 return delay
