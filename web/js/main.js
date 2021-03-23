@@ -62,6 +62,12 @@ function get_user_id(){
 
 function format_resp(firstname, lastname, resp){
     str = '<tr><td>';
+
+    if (resp == 1)
+	str += '<p style="color:blue">'; 
+    else if (resp == 0)
+    str += '<p style="color:red">'; 
+
     str += firstname + ' ' + lastname + ' '
     if (resp == 1)
 	str += 'viendra.'; 
@@ -70,7 +76,7 @@ function format_resp(firstname, lastname, resp){
     else if (resp == -1)
 	str += 'en a marre de se faire harcerler par mon script.'
 
-    str += '</td></tr>'
+    str += '</p></td></tr>'
     return str;
 }
 
