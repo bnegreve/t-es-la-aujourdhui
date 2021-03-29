@@ -37,6 +37,8 @@ function get(index){
 
 
 function toggle_requires_id(value=true){
+    document.getElementById("btn-register").innerHTML = "Mettre à jour";
+    document.getElementById("btn-logout").style.display = "block";
     var items = document.getElementsByClassName('requires_id');
     for (var i=0; i < items.length; i++) {
 	items[i].disabled = !value;
@@ -60,6 +62,12 @@ function get_user_id(){
 
 function format_resp(firstname, lastname, resp){
     str = '<tr><td>';
+
+    if (resp == 1)
+	str += '<p style="color:blue">'; 
+    else if (resp == 0)
+    str += '<p style="color:red">'; 
+
     str += firstname + ' ' + lastname + ' '
     if (resp == 1)
 	str += 'viendra.'; 
@@ -68,7 +76,7 @@ function format_resp(firstname, lastname, resp){
     else if (resp == -1)
 	str += 'en a marre de se faire harcerler par mon script.'
 
-    str += '</td></tr>'
+    str += '</p></td></tr>'
     return str;
 }
 
@@ -117,6 +125,13 @@ function update_list(){
     query(SERVER, qdata, process_response);
 }
 
+function get_userinfo(){
+    var id = get_user_id()    
+    var qdata = { 'q' : 'userinfo', 'id': user_id };    
+    query(SERVER, qdata, process_response);
+}
+
+
 
 function process_list_response(rdata){    
     if (rdata.subtype === 'message')
@@ -147,6 +162,7 @@ function process_user_response_response(rdata){
 	print_message(rdata.data.msg_string);
 	toggle_requires_response();
 	update_list();
+	get_userinfo();
     }
 }
 
@@ -158,7 +174,7 @@ function process_userinfo_response(rdata){
 	document.getElementById('firstname').value = rdata.data.firstname;
 	document.getElementById('lastname').value = rdata.data.lastname;
 	document.getElementById('email').value = rdata.data.email;
-	print_message("Bienvenu(e) " + rdata.data.firstname);
+	//print_message("Bienvenu(e) " + rdata.data.firstname);
 	toggle_requires_id();
 	update_list();
     }
@@ -211,6 +227,10 @@ function process_register_user_response(rdata){
     }
 }
 
+function logout(){
+    user_id=null;
+    location.search='';
+}
 
 function action_send_email(){
     var email = document.getElementById('email2').value;

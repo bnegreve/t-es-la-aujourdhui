@@ -84,7 +84,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def get_delay_from_validity(self, validity):
         if validity != None: 
-            if validity == 'next_monday':
+            if validity == 'next_monday' or validity == 'next_moday': 
                 today = date.today()
                 delay = timedelta(days=-today.weekday() - 1, weeks=1)
                 return delay
@@ -127,6 +127,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     raise ValueError
             except ValueError:
                 self.respond_with_parse_error('response', qs)
+                raise ValueError
             self.respond_with_data("response", { 'msg_string' : "C'est noté." })
         else:
             self.respond_with_message("response", "Identifiant inconnu ou non renseigné. Il faut s'inscrire pour pouvoir voir ce que font les autres.", 0)

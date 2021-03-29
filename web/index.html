@@ -31,7 +31,8 @@
 	Prénom: <input  type='text' id='firstname'/>
 	Nom: <input  type='text' id='lastname' />
 	e-mail: <input  type='text' id='email' />
-	<button class='btn btn-info btn-sm' onclick="action_register_user()">S'inscrire/mettre à jour</button>
+	<button id='btn-register' class='btn btn-info btn-sm' onclick="action_register_user()">S'inscrire</button>
+	<button id='btn-logout' class='btn btn-info btn-sm' onclick="logout()">Se déconnecter</button>
       </p>
       <p>
 	<h5>Recevoir à nouveau un accès par mail</h5>
@@ -67,6 +68,10 @@
 	<button id='no_spam' class='btn btn-sm btn-outline-danger requires_id' onclick="action_user_response('no_spam', 10); window.scrollTo(0,0);" disabled>Arrêter de spammer ma boite mail pendant 10 jours</button>
 	<button class='btn btn-sm btn-danger requires_id' onclick="action_remove_user();" disabled>Se désinscrire</button>
       </p>
+    </div>
+    <h2>Ya des bugs</h2>
+    <div class='section'>
+      <a href='https://github.com/bnegreve/t-es-la-aujourdhui'>https://github.com/bnegreve/t-es-la-aujourdhui</a> (voir: <em>pull request</em>)
     </div>
     <h2>Données personnelles</h2>
     <div class='section'>
