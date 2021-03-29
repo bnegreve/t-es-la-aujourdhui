@@ -1,4 +1,5 @@
 import http.server
+import html
 import socketserver
 import sys
 from urllib.parse import unquote, quote, urlparse, parse_qs, urlunparse
@@ -6,6 +7,7 @@ import registered_users as ru
 import responses as resp
 import send_emails as se
 import config as conf
+import re
 from datetime import date,timedelta,datetime
 import json    
 
@@ -22,9 +24,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
     #     print("Initializing server")
 
     @staticmethod
+    def remove_html(s):
+        tags = re.compile('<.*?>')
+        return re.sub(tags, '', s)
+
+    @staticmethod
     def extract_value(query, name, required=False):
         if name in query:
-            return query[name][0]
+            return Handler.remove_html(query[name][0])
         elif not required:
             return None
         else:

@@ -150,7 +150,6 @@ function process_user_response_response(rdata){
     }
 }
 
-
 function process_userinfo_response(rdata){    
 
     if (rdata.subtype === 'message')
@@ -166,17 +165,41 @@ function process_userinfo_response(rdata){
 }
 
 
+
+// from https://www.w3resource.com/javascript/form/email-validation.php
+function validate(firstname, lastname, email){
+    if (! /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email)){
+	clear_message_area();
+	print_message("Email invalide.");
+	return false; 
+    }
+    else if (firstname === ""  || lastname === ""){
+	clear_message_area();
+	print_message("Nom ou prénom invalide.");
+	return false;
+    }
+    else{
+	return true;
+    }
+}
+
+function sanitize(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}
+
 function action_register_user(){
-    var firstname = document.getElementById('firstname').value;
-    var lastname = document.getElementById('lastname').value;
-    var email = document.getElementById('email').value;
+    var firstname = sanitize(document.getElementById('firstname').value);
+    var lastname = sanitize(document.getElementById('lastname').value);
+    var email = sanitize(document.getElementById('email').value);
     var id = get_user_id(); 
-    query(SERVER, { 'q': 'register',
-		    'firstname' : firstname,
-		    'lastname' : lastname,
-		    'email' : email,
-		    'id' : id
-		  }); 
+    if(validate(firstname, lastname, email)){
+	query(SERVER, { 'q': 'register',
+			'firstname' : firstname,
+			'lastname' : lastname,
+			'email' : email,
+			'id' : id
+		      });
+    }
 }
 
 function process_register_user_response(rdata){
