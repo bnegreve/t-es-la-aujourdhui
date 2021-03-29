@@ -59,6 +59,21 @@ function get_user_id(){
     return user_id; 
 }
 
+function format_resp(firstname, lastname, resp){
+    str = '<tr><td class="';
+    str+= resp==1 ? 'yesresp' : 'noresp';
+    str = '">';	
+    str += firstname + ' ' + lastname + ' '
+    if (resp == 1)
+	str += 'viendra.'; 
+    else if (resp == 0)
+	str += 'ne viendra pas.';
+    else if (resp == -1)
+	str += 'en a marre de se faire harcerler par mon script.'
+
+    str += '</td></tr>'
+    return str;
+}
 
 function format_resp(firstname, lastname, resp){
     str = '<tr><td>';

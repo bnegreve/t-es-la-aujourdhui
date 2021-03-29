@@ -23,3 +23,10 @@
 .section{
     padding-bottom:1em;
 }
+
+.yesresp{
+    color: darkred; 
+}
+.noresp{
+    color: darkblue;
+}
