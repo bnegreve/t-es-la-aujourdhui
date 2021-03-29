@@ -62,7 +62,7 @@ function get_user_id(){
 function format_resp(firstname, lastname, resp){
     str = '<tr><td class="';
     str+= resp==1 ? 'yesresp' : 'noresp';
-    str+ = '">';	
+    str+= '">';	
     str += firstname + ' ' + lastname + ' '
     if (resp == 1)
 	str += 'viendra.'; 
